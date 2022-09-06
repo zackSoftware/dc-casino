@@ -38,7 +38,8 @@ local RandomIdle = {
 local RandomSpin = {
     'press_spin_a',
     'press_spin_b',
-    'pull_spin_a_SLOTMACHINE'
+    'pull_spin_a',
+    'pull_spin_b'
 }
 
 local function DrawText3D(x, y, z, text)
@@ -112,16 +113,19 @@ local function SlotMachineHandler()
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
                 while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
                 local RandomAnimName = RandomSpin[math.random(1, #RandomSpin)]
-                if RandomAnimName == 'pull_spin_a_SLOTMACHINE' then
+                if RandomAnimName == 'pull_spin_a' then
                     LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
-                    N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, 'anim_casino_a@amb@casino@games@slots@male', 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13)
+                    N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, 'anim_casino_a@amb@casino@games@slots@male', 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13.0)
                     NetworkStartSynchronisedScene(LeverScene)
-                else
-                    NetworkAddPedToSynchronisedScene(PlayerPedId(), PullScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
+                elseif RandomAnimName == 'pull_spin_b' then
+                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+                    N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, 'anim_casino_a@amb@casino@games@slots@male', 'pull_spin_b_SLOTMACHINE', 2.0, -1.5, 13.0)
+                    NetworkStartSynchronisedScene(LeverScene)
                 end
+                NetworkAddPedToSynchronisedScene(PlayerPedId(), PullScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 1000.0, 0)
                 NetworkStartSynchronisedScene(PullScene)
                 Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000)
-                print('done')
+                NetworkStopSynchronisedScene(LeverScene)
             end
             Wait(0)
         end
