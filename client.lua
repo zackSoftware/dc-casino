@@ -7,6 +7,9 @@ local EnteredSlot
 local SlotObject1
 local SlotObject2
 local SlotObject3
+local SlotLocation1
+local SlotLocation2
+local SlotLocation3
 local Slots = {
     2362925439,
     2775323096,
@@ -57,13 +60,17 @@ local function DrawText3D(x, y, z, text)
     ClearDrawOrigin()
 end
 
-local function SetupSlotMachine()
+local function SetupReels()
     RequestModel(3104582536)
     while not HasModelLoaded(3104582536) do Wait(0) end
 
-    local SlotLocation1 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), -0.115, 0.047, 0.906)
-    local SlotLocation2 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), 0.005, 0.047, 0.906)
-    local SlotLocation3 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), 0.125, 0.047, 0.906)
+    if DoesEntityExist(SlotObject1) then DeleteObject(SlotObject1) end
+    if DoesEntityExist(SlotObject2) then DeleteObject(SlotObject2) end
+    if DoesEntityExist(SlotObject3) then DeleteObject(SlotObject3) end
+
+    SlotLocation1 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), -0.115, 0.047, 0.906)
+    SlotLocation2 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), 0.005, 0.047, 0.906)
+    SlotLocation3 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), 0.125, 0.047, 0.906)
 
     SlotObject1 = CreateObject(3104582536, SlotLocation1, false, false, true)
     SlotObject2 = CreateObject(3104582536, SlotLocation2, false, false, true)
@@ -82,6 +89,33 @@ local function SetupSlotMachine()
     SetEntityRotation(SlotObject3, 0.0, 0.0, GetEntityHeading(ClosestSlot), 2, 1)
 
     SetModelAsNoLongerNeeded(3104582536)
+end
+
+local function SetupBlurReels()
+    DeleteObject(SlotObject1)
+    DeleteObject(SlotObject2)
+    DeleteObject(SlotObject3)
+
+    RequestModel(2703955257)
+    while not HasModelLoaded(2703955257) do Wait(0) end
+
+    SlotObject1 = CreateObject(2703955257, SlotLocation1, false, false, true)
+    SlotObject2 = CreateObject(2703955257, SlotLocation2, false, false, true)
+    SlotObject3 = CreateObject(2703955257, SlotLocation3, false, false, true)
+
+    FreezeEntityPosition(SlotObject1, true)
+    FreezeEntityPosition(SlotObject2, true)
+    FreezeEntityPosition(SlotObject3, true)
+
+    SetEntityCollision(SlotObject1, false, false)
+    SetEntityCollision(SlotObject2, false, false)
+    SetEntityCollision(SlotObject3, false, false)
+
+    SetEntityRotation(SlotObject1, 0.0, 0.0, GetEntityHeading(ClosestSlot), 2, 1)
+    SetEntityRotation(SlotObject2, 0.0, 0.0, GetEntityHeading(ClosestSlot), 2, 1)
+    SetEntityRotation(SlotObject3, 0.0, 0.0, GetEntityHeading(ClosestSlot), 2, 1)
+
+    SetModelAsNoLongerNeeded(2703955257)
 end
 
 local function SlotMachineHandler()
@@ -125,7 +159,11 @@ local function SlotMachineHandler()
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), PullScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 1000.0, 0)
                 NetworkStartSynchronisedScene(PullScene)
                 Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000)
-                NetworkStopSynchronisedScene(LeverScene)
+                NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
+                FreezeEntityPosition(ClosestSlot, true) --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
+                SetupBlurReels()
+                Wait(2000)
+                SetupReels()
             end
             Wait(0)
         end
@@ -167,7 +205,7 @@ CreateThread(function()
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), EnterScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(EnterScene)
                 Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000)
-                SetupSlotMachine()
+                SetupReels()
                 SlotMachineHandler()
             end
         end
