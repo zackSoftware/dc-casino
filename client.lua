@@ -143,7 +143,6 @@ local function SpinReels()
             if EndTime - GetGameTimer() > 2000 then
                 SetEntityRotation(SlotObject3, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
                 if EndTime - GetGameTimer() < 2050 then
-                    print('boks')
                     DeleteObject(SlotObject3)
                     SlotObject3 = CreateObject(3104582536, SlotLocation3, false, false, true)
                     FreezeEntityPosition(SlotObject3, true)
