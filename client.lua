@@ -178,7 +178,7 @@ local function SlotMachineHandler()
                 local RandomAnimName = RandomLeave[math.random(1, #RandomLeave)]
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), LeaveScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(LeaveScene)
-                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000)
+                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 700)
                 DeleteObject(SlotObject1)
                 DeleteObject(SlotObject2)
                 DeleteObject(SlotObject3)
@@ -246,8 +246,9 @@ CreateThread(function()
                 local RandomAnimName = RandomEnter[math.random(1, #RandomEnter)]
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), EnterScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(EnterScene)
-                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000)
+                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 500)
                 SetupReels()
+                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 500)
                 SlotMachineHandler()
             end
         end
