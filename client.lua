@@ -119,15 +119,47 @@ local function SetupBlurReels()
 end
 
 local function SpinReels()
-    -- local EndTime = GetGameTimer() + 10000
-    -- while GetGameTimer() < EndTime do
-
-
-    -- end
-    SetEntityRotation(SlotObject1, math.random(0, 16) * 22.5, 0.0, GetEntityHeading(ClosestSlot), 2, true)
-    SetEntityRotation(SlotObject2, math.random(0, 16) * 22.5, 0.0, GetEntityHeading(ClosestSlot), 2, true)
-    SetEntityRotation(SlotObject3, math.random(0, 16) * 22.5, 0.0, GetEntityHeading(ClosestSlot), 2, true)
-
+    local EndTime = GetGameTimer() + 4000
+    local ReelReward1 = math.random(0, 16) * 22.5
+    local ReelReward2 = math.random(0, 16) * 22.5
+    local ReelReward3 = math.random(0, 16) * 22.5
+    local CurrentHeading1 = GetEntityHeading(SlotObject1)
+    local CurrentHeading2 = GetEntityHeading(SlotObject2)
+    local CurrentHeading3 = GetEntityHeading(SlotObject3)
+    local SlotHeading = GetEntityHeading(ClosestSlot)
+    RequestModel(3104582536)
+    while not HasModelLoaded(3104582536) do Wait(0) end
+    while GetGameTimer() < EndTime do
+        SetEntityRotation(SlotObject1, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
+        if EndTime - GetGameTimer() > 1000 then
+            SetEntityRotation(SlotObject2, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
+            if EndTime - GetGameTimer() < 1050 then
+                DeleteObject(SlotObject2)
+                SlotObject2 = CreateObject(3104582536, SlotLocation2, false, false, true)
+                FreezeEntityPosition(SlotObject2, true)
+                SetEntityCollision(SlotObject2, false, false)
+                SetEntityRotation(SlotObject2, ReelReward2, 0.0, SlotHeading, 2, true)
+            end
+            if EndTime - GetGameTimer() > 2000 then
+                SetEntityRotation(SlotObject3, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
+                if EndTime - GetGameTimer() < 2050 then
+                    print('boks')
+                    DeleteObject(SlotObject3)
+                    SlotObject3 = CreateObject(3104582536, SlotLocation3, false, false, true)
+                    FreezeEntityPosition(SlotObject3, true)
+                    SetEntityCollision(SlotObject3, false, false)
+                    SetEntityRotation(SlotObject3, ReelReward3, 0.0, SlotHeading, 2, true)
+                end
+            end
+        end
+        Wait(0)
+    end
+    DeleteObject(SlotObject1)
+    SlotObject1 = CreateObject(3104582536, SlotLocation1, false, false, true)
+    FreezeEntityPosition(SlotObject1, true)
+    SetEntityCollision(SlotObject1, false, false)
+    SetEntityRotation(SlotObject1, ReelReward1, 0.0, SlotHeading, 2, true)
+    SetModelAsNoLongerNeeded(3104582536)
 end
 
 local function SlotMachineHandler()
@@ -171,12 +203,10 @@ local function SlotMachineHandler()
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), PullScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 1000.0, 0)
                 NetworkStartSynchronisedScene(PullScene)
                 Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000 / 2)
-                -- SetupBlurReels()
-                SpinReels()
-
                 NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
                 FreezeEntityPosition(ClosestSlot, true) --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
-                -- SetupReels()
+                SetupBlurReels()
+                SpinReels()
             end
             Wait(0)
         end
