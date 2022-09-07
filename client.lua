@@ -118,6 +118,18 @@ local function SetupBlurReels()
     SetModelAsNoLongerNeeded(2703955257)
 end
 
+local function SpinReels()
+    -- local EndTime = GetGameTimer() + 10000
+    -- while GetGameTimer() < EndTime do
+
+
+    -- end
+    SetEntityRotation(SlotObject1, math.random(0, 16) * 22.5, 0.0, GetEntityHeading(ClosestSlot), 2, true)
+    SetEntityRotation(SlotObject2, math.random(0, 16) * 22.5, 0.0, GetEntityHeading(ClosestSlot), 2, true)
+    SetEntityRotation(SlotObject3, math.random(0, 16) * 22.5, 0.0, GetEntityHeading(ClosestSlot), 2, true)
+
+end
+
 local function SlotMachineHandler()
     EnteredSlot = true
     IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
@@ -158,12 +170,13 @@ local function SlotMachineHandler()
                 end
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), PullScene, 'anim_casino_a@amb@casino@games@slots@male', RandomAnimName, 2.0, -1.5, 13, 16, 1000.0, 0)
                 NetworkStartSynchronisedScene(PullScene)
-                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000)
+                Wait(GetAnimDuration('anim_casino_a@amb@casino@games@slots@male', RandomAnimName) * 1000 / 2)
+                -- SetupBlurReels()
+                SpinReels()
+
                 NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
                 FreezeEntityPosition(ClosestSlot, true) --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
-                SetupBlurReels()
-                Wait(2000)
-                SetupReels()
+                -- SetupReels()
             end
             Wait(0)
         end
