@@ -44,6 +44,55 @@ local RandomSpin = {
     'pull_spin_a',
     'pull_spin_b'
 }
+local SlotReferences = {
+    ['vw_prop_casino_slot_01a'] = {
+        sound = 'dlc_vw_casino_slot_machine_ak_npc_sounds',
+        texture = 'CasinoUI_Slots_Angel'
+    },
+    ['vw_prop_casino_slot_02a'] = {
+        sound = 'dlc_vw_casino_slot_machine_ir_npc_sounds',
+        texture = 'CasinoUI_Slots_Impotent'
+    },
+    ['vw_prop_casino_slot_03a'] = {
+        sound = 'dlc_vw_casino_slot_machine_rsr_npc_sounds',
+        texture = 'CasinoUI_Slots_Ranger'
+    },
+    ['vw_prop_casino_slot_04a'] = {
+        sound = 'dlc_vw_casino_slot_machine_fs_npc_sounds',
+        texture = 'CasinoUI_Slots_Fame'
+    },
+    ['vw_prop_casino_slot_05a'] = {
+        sound = 'dlc_vw_casino_slot_machine_ds_npc_sounds',
+        texture = 'CasinoUI_Slots_Deity'
+    },
+    ['vw_prop_casino_slot_06a'] = {
+        sound = 'dlc_vw_casino_slot_machine_kd_npc_sounds',
+        texture = 'CasinoUI_Slots_Knife'
+    },
+    ['vw_prop_casino_slot_07a'] = {
+        sound = 'dlc_vw_casino_slot_machine_td_npc_sounds',
+        texture = 'CasinoUI_Slots_Diamond'
+    },
+    ['vw_prop_casino_slot_08a'] = {
+        sound = 'dlc_vw_casino_slot_machine_hz_npc_sounds',
+        texture = 'CasinoUI_Slots_Evacuator'
+    },
+}
+local Sounds = {
+    function() PlaySoundFromCoord(-1, 'no_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'small_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'big_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'jackpot', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'place_bet', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'place_max_bet', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'spinning', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'start_spin', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'welcome_stinger', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'spin_wheel', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'spin_wheel_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end
+}
 
 local function DrawText3D(x, y, z, text)
     SetTextScale(0.35, 0.35)
@@ -213,6 +262,9 @@ local function SlotMachineHandler()
 end
 
 CreateThread(function()
+    while not RequestScriptAudioBank("dlc_vinewood/casino_slot_machines_01", 0) do Wait(0) end
+    while not RequestScriptAudioBank("dlc_vinewood/casino_slot_machines_02", 0) do Wait(0) end
+    while not RequestScriptAudioBank("dlc_vinewood/casino_slot_machines_03", 0) do Wait(0) end
 	while true do
         local PlayerCoords = GetEntityCoords(PlayerPedId())
         for i = 1, #Slots do
