@@ -47,35 +47,43 @@ local RandomSpin = {
 local SlotReferences = {
     ['vw_prop_casino_slot_01a'] = {
         sound = 'dlc_vw_casino_slot_machine_ak_npc_sounds',
-        texture = 'CasinoUI_Slots_Angel'
+        texture = 'CasinoUI_Slots_Angel',
+        name = 'Angel And The Knight'
     },
     ['vw_prop_casino_slot_02a'] = {
         sound = 'dlc_vw_casino_slot_machine_ir_npc_sounds',
-        texture = 'CasinoUI_Slots_Impotent'
+        texture = 'CasinoUI_Slots_Impotent',
+        name = 'Impotent Rage'
     },
     ['vw_prop_casino_slot_03a'] = {
         sound = 'dlc_vw_casino_slot_machine_rsr_npc_sounds',
-        texture = 'CasinoUI_Slots_Ranger'
+        texture = 'CasinoUI_Slots_Ranger',
+        name = 'Republican Space Rangers'
     },
     ['vw_prop_casino_slot_04a'] = {
         sound = 'dlc_vw_casino_slot_machine_fs_npc_sounds',
-        texture = 'CasinoUI_Slots_Fame'
+        texture = 'CasinoUI_Slots_Fame',
+        name = 'Fame Or Shame'
     },
     ['vw_prop_casino_slot_05a'] = {
         sound = 'dlc_vw_casino_slot_machine_ds_npc_sounds',
-        texture = 'CasinoUI_Slots_Deity'
+        texture = 'CasinoUI_Slots_Deity',
+        name = 'Deity Of The Sun'
     },
     ['vw_prop_casino_slot_06a'] = {
         sound = 'dlc_vw_casino_slot_machine_kd_npc_sounds',
-        texture = 'CasinoUI_Slots_Knife'
+        texture = 'CasinoUI_Slots_Knife',
+        name = 'Twilight Knife'
     },
     ['vw_prop_casino_slot_07a'] = {
         sound = 'dlc_vw_casino_slot_machine_td_npc_sounds',
-        texture = 'CasinoUI_Slots_Diamond'
+        texture = 'CasinoUI_Slots_Diamond',
+        name = 'Diamond Miner'
     },
     ['vw_prop_casino_slot_08a'] = {
         sound = 'dlc_vw_casino_slot_machine_hz_npc_sounds',
-        texture = 'CasinoUI_Slots_Evacuator'
+        texture = 'CasinoUI_Slots_Evacuator',
+        name = 'Evacuator'
     },
 }
 local Sounds = {
@@ -169,9 +177,9 @@ end
 
 local function SpinReels()
     local EndTime = GetGameTimer() + 4000
-    local ReelReward1 = math.random(0, 16) * 22.5
-    local ReelReward2 = math.random(0, 16) * 22.5
-    local ReelReward3 = math.random(0, 16) * 22.5
+    local ReelReward1 = math.random(0, 15) * 22.5
+    local ReelReward2 = math.random(0, 15) * 22.5
+    local ReelReward3 = math.random(0, 15) * 22.5
     local CurrentHeading1 = GetEntityHeading(SlotObject1)
     local CurrentHeading2 = GetEntityHeading(SlotObject2)
     local CurrentHeading3 = GetEntityHeading(SlotObject3)
@@ -179,9 +187,9 @@ local function SpinReels()
     RequestModel(3104582536)
     while not HasModelLoaded(3104582536) do Wait(0) end
     while GetGameTimer() < EndTime do
-        SetEntityRotation(SlotObject1, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
+        SetEntityRotation(SlotObject1, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
         if EndTime - GetGameTimer() > 1000 then
-            SetEntityRotation(SlotObject2, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
+            SetEntityRotation(SlotObject2, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
             if EndTime - GetGameTimer() < 1050 then
                 DeleteObject(SlotObject2)
                 SlotObject2 = CreateObject(3104582536, SlotLocation2, false, false, true)
@@ -190,7 +198,7 @@ local function SpinReels()
                 SetEntityRotation(SlotObject2, ReelReward2, 0.0, SlotHeading, 2, true)
             end
             if EndTime - GetGameTimer() > 2000 then
-                SetEntityRotation(SlotObject3, math.random(0, 16) * 22.5, 0.0, SlotHeading, 2, true)
+                SetEntityRotation(SlotObject3, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
                 if EndTime - GetGameTimer() < 2050 then
                     DeleteObject(SlotObject3)
                     SlotObject3 = CreateObject(3104582536, SlotLocation3, false, false, true)
@@ -290,7 +298,7 @@ CreateThread(function()
         local WaitTime = 500
         if NearbySlot and not EnteredSlot then
             WaitTime = 0
-            DrawText3D(ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z + 1, "~o~E~w~ - Aight")
+            DrawText3D(ClosestSlotCoord.x - GetEntityForwardX(ClosestSlot), ClosestSlotCoord.y - GetEntityForwardY(ClosestSlot), ClosestSlotCoord.z + 1, "~o~E~w~ - Play "..SlotReferences[GetEntityArchetypeName(ClosestSlot)].name)
             if IsControlJustReleased(0, 38) then
                 EnterScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
