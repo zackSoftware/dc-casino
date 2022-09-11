@@ -10,6 +10,9 @@ local SlotObject3
 local SlotLocation1
 local SlotLocation2
 local SlotLocation3
+local ClosestSlotForwardX
+local ClosestSlotForwardY
+local ClosestSlotName
 local Slots = {
     2362925439,
     2775323096,
@@ -87,19 +90,19 @@ local SlotReferences = {
     },
 }
 local Sounds = {
-    function() PlaySoundFromCoord(-1, 'no_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'small_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'big_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'jackpot', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'place_bet', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'place_max_bet', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'spinning', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'start_spin', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'welcome_stinger', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'spin_wheel', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'spin_wheel_win', ClosestSlotCoord, SlotReferences[GetEntityArchetypeName(ClosestSlot)].sound, false, 20, false) end
+    function() PlaySoundFromCoord(-1, 'no_win', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'small_win', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'big_win', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'jackpot', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'place_bet', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'place_max_bet', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'spinning', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'start_spin', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'welcome_stinger', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'spin_wheel', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end,
+    function() PlaySoundFromCoord(-1, 'spin_wheel_win', ClosestSlotCoord, SlotReferences[ClosestSlotName].sound, false, 20, false) end
 }
 
 local function DrawText3D(x, y, z, text)
@@ -220,7 +223,7 @@ end
 
 local function SlotMachineHandler()
     EnteredSlot = true
-    IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+    IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
     RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
     while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
     local RandomAnimName = RandomIdle[math.random(1, #RandomIdle)]
@@ -229,7 +232,7 @@ local function SlotMachineHandler()
     CreateThread(function()
         while true do
             if IsControlJustPressed(0, 202) then
-                LeaveScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+                LeaveScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
                 while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
                 local RandomAnimName = RandomLeave[math.random(1, #RandomLeave)]
@@ -243,16 +246,16 @@ local function SlotMachineHandler()
                 EnteredSlot = false
                 break
             elseif IsControlJustPressed(0, 201) then
-                PullScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+                PullScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
                 while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
                 local RandomAnimName = RandomSpin[math.random(1, #RandomSpin)]
                 if RandomAnimName == 'pull_spin_a' then
-                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, 'anim_casino_a@amb@casino@games@slots@male', 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13.0)
                     NetworkStartSynchronisedScene(LeverScene)
                 elseif RandomAnimName == 'pull_spin_b' then
-                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, 'anim_casino_a@amb@casino@games@slots@male', 'pull_spin_b_SLOTMACHINE', 2.0, -1.5, 13.0)
                     NetworkStartSynchronisedScene(LeverScene)
                 end
@@ -284,6 +287,10 @@ CreateThread(function()
                     NearbySlot = true
                     ClosestSlot = Slot
                     ClosestSlotCoord = SlotCoords
+                    ClosestSlotForwardX = GetEntityForwardX(ClosestSlot)
+                    ClosestSlotForwardY = GetEntityForwardY(ClosestSlot)
+                    ClosestSlotName = GetEntityArchetypeName(ClosestSlot)
+                    ClosestSlotRotation = GetEntityRotation(ClosestSlot)
                 end
             elseif #(PlayerCoords - ClosestSlotCoord) > 1.8 then
                 NearbySlot = false
@@ -298,9 +305,9 @@ CreateThread(function()
         local WaitTime = 500
         if NearbySlot and not EnteredSlot then
             WaitTime = 0
-            DrawText3D(ClosestSlotCoord.x - GetEntityForwardX(ClosestSlot), ClosestSlotCoord.y - GetEntityForwardY(ClosestSlot), ClosestSlotCoord.z + 1, "~o~E~w~ - Play "..SlotReferences[GetEntityArchetypeName(ClosestSlot)].name)
+            DrawText3D(ClosestSlotCoord.x - ClosestSlotForwardX, ClosestSlotCoord.y - ClosestSlotForwardY, ClosestSlotCoord.z + 1, "~o~E~w~ - Play "..SlotReferences[ClosestSlotName].name)
             if IsControlJustReleased(0, 38) then
-                EnterScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, GetEntityRotation(ClosestSlot), 2, 2, 0, 1.0, 0, 1.0)
+                EnterScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
                 while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
                 local RandomAnimName = RandomEnter[math.random(1, #RandomEnter)]
