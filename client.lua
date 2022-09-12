@@ -13,6 +13,7 @@ local SlotLocation3
 local ClosestSlotForwardX
 local ClosestSlotForwardY
 local ClosestSlotName
+local ShouldDrawScaleForm = false
 local Slots = {
     2362925439,
     2775323096,
@@ -51,42 +52,50 @@ local SlotReferences = {
     ['vw_prop_casino_slot_01a'] = {
         sound = 'dlc_vw_casino_slot_machine_ak_npc_sounds',
         texture = 'CasinoUI_Slots_Angel',
-        name = 'Angel And The Knight'
+        name = 'Angel And The Knight',
+        scriptrt = '01a'
     },
     ['vw_prop_casino_slot_02a'] = {
         sound = 'dlc_vw_casino_slot_machine_ir_npc_sounds',
         texture = 'CasinoUI_Slots_Impotent',
-        name = 'Impotent Rage'
+        name = 'Impotent Rage',
+        scriptrt = '02a'
     },
     ['vw_prop_casino_slot_03a'] = {
         sound = 'dlc_vw_casino_slot_machine_rsr_npc_sounds',
         texture = 'CasinoUI_Slots_Ranger',
-        name = 'Republican Space Rangers'
+        name = 'Republican Space Rangers',
+        scriptrt = '03a'
     },
     ['vw_prop_casino_slot_04a'] = {
         sound = 'dlc_vw_casino_slot_machine_fs_npc_sounds',
         texture = 'CasinoUI_Slots_Fame',
-        name = 'Fame Or Shame'
+        name = 'Fame Or Shame',
+        scriptrt = '04a'
     },
     ['vw_prop_casino_slot_05a'] = {
         sound = 'dlc_vw_casino_slot_machine_ds_npc_sounds',
         texture = 'CasinoUI_Slots_Deity',
-        name = 'Deity Of The Sun'
+        name = 'Deity Of The Sun',
+        scriptrt = '05a'
     },
     ['vw_prop_casino_slot_06a'] = {
         sound = 'dlc_vw_casino_slot_machine_kd_npc_sounds',
         texture = 'CasinoUI_Slots_Knife',
-        name = 'Twilight Knife'
+        name = 'Twilight Knife',
+        scriptrt = '01a'
     },
     ['vw_prop_casino_slot_07a'] = {
         sound = 'dlc_vw_casino_slot_machine_td_npc_sounds',
         texture = 'CasinoUI_Slots_Diamond',
-        name = 'Diamond Miner'
+        name = 'Diamond Miner',
+        scriptrt = '07a'
     },
     ['vw_prop_casino_slot_08a'] = {
         sound = 'dlc_vw_casino_slot_machine_hz_npc_sounds',
         texture = 'CasinoUI_Slots_Evacuator',
-        name = 'Evacuator'
+        name = 'Evacuator',
+        scriptrt = '08a'
     },
 }
 local Sounds = {
@@ -118,6 +127,74 @@ local function DrawText3D(x, y, z, text)
     local factor = (string.len(text)) / 370
     DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
+end
+
+local function CreateNamedRenderTargetForModel(name, model)
+	local handle = 0
+	if not IsNamedRendertargetRegistered(name) then
+		RegisterNamedRendertarget(name, 0)
+	end
+	if not IsNamedRendertargetLinked(model) then
+		LinkNamedRendertarget(model)
+	end
+	if IsNamedRendertargetRegistered(name) then
+		handle = GetNamedRendertargetRenderId(name)
+	end
+	return handle
+end
+
+local function CallScaleformMethod (scaleform, method, ...)
+	local t
+	local args = { ... }
+	BeginScaleformMovieMethod(scaleform, method)
+	for k, v in ipairs(args) do
+		t = type(v)
+		if t == 'string' then
+			PushScaleformMovieMethodParameterString(v)
+		elseif t == 'number' then
+			if string.match(tostring(v), "%.") then
+				PushScaleformMovieFunctionParameterFloat(v)
+			else
+				PushScaleformMovieFunctionParameterInt(v)
+			end
+		elseif t == 'boolean' then
+			PushScaleformMovieMethodParameterBool(v)
+		end
+	end
+	EndScaleformMovieMethod()
+end
+
+-- SLOT_MACHINE()
+-- initialise(mc)
+-- initText()
+-- SET_MESSAGE(Message)
+-- SET_BET(Bet)
+-- SET_LAST_WIN(LastWin)
+-- SET_THEME(Theme)
+-- colorSlotText(colorValue)
+-- colorSlotNumbers(colorValue)
+-- resizeAsianText(tf)
+
+local function SetupScaleform()
+    CreateThread(function()
+        print('Calling Scaleform')
+        scaleform = RequestScaleformMovie('SLOT_MACHINE') --uParam0->f_709
+        while not HasScaleformMovieLoaded(scaleform) do
+            Wait(0)
+        end
+        print(ClosestSlotName, SlotReferences[ClosestSlotName].scriptrt)
+        local model = ClosestSlotName
+        local handle = CreateNamedRenderTargetForModel("machine_"..SlotReferences[ClosestSlotName].scriptrt, model)
+        while ShouldDrawScaleForm do
+            N_0x32f34ff7f617643b(scaleform, 1)
+            SetTextRenderId(handle) -- Sets the render target to the handle we grab above
+            SetScriptGfxDrawOrder(4)
+            SetScriptGfxDrawBehindPausemenu(true)
+            DrawScaleformMovie(scaleform, 0.401, 0.09, 0.805, 0.195, 255, 255, 255, 255, 0)
+            SetTextRenderId(GetDefaultScriptRendertargetRenderId()) -- Resets the render target
+            Wait(0)
+        end
+    end)
 end
 
 local function SetupReels()
@@ -222,6 +299,8 @@ local function SpinReels()
 end
 
 local function SlotMachineHandler()
+    ShouldDrawScaleForm = true
+    SetupScaleform()
     EnteredSlot = true
     IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
     RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
@@ -244,8 +323,11 @@ local function SlotMachineHandler()
                 DeleteObject(SlotObject3)
                 NetworkStopSynchronisedScene(LeaveScene)
                 EnteredSlot = false
+                ShouldDrawScaleForm = false
                 break
             elseif IsControlJustPressed(0, 201) then
+                CallScaleformMethod(scaleform, 'SET_BET', 100)
+                CallScaleformMethod(scaleform, 'SET_LAST_WIN', 1000)
                 PullScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
                 while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
