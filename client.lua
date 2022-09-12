@@ -164,25 +164,12 @@ local function CallScaleformMethod (scaleform, method, ...)
 	EndScaleformMovieMethod()
 end
 
--- SLOT_MACHINE()
--- initialise(mc)
--- initText()
--- SET_MESSAGE(Message)
--- SET_BET(Bet)
--- SET_LAST_WIN(LastWin)
--- SET_THEME(Theme)
--- colorSlotText(colorValue)
--- colorSlotNumbers(colorValue)
--- resizeAsianText(tf)
-
 local function SetupScaleform()
     CreateThread(function()
-        print('Calling Scaleform')
-        scaleform = RequestScaleformMovie('SLOT_MACHINE') --uParam0->f_709
+        scaleform = RequestScaleformMovie('SLOT_MACHINE')
         while not HasScaleformMovieLoaded(scaleform) do
             Wait(0)
         end
-        print(ClosestSlotName, SlotReferences[ClosestSlotName].scriptrt)
         local model = ClosestSlotName
         local handle = CreateNamedRenderTargetForModel("machine_"..SlotReferences[ClosestSlotName].scriptrt, model)
         while ShouldDrawScaleForm do
@@ -326,8 +313,9 @@ local function SlotMachineHandler()
                 ShouldDrawScaleForm = false
                 break
             elseif IsControlJustPressed(0, 201) then
-                CallScaleformMethod(scaleform, 'SET_BET', 100)
-                CallScaleformMethod(scaleform, 'SET_LAST_WIN', 1000)
+                CallScaleformMethod(scaleform, 'SET_BET', 5000)
+                CallScaleformMethod(scaleform, 'SET_LAST_WIN', 5000)
+                CallScaleformMethod(scaleform, 'SET_MESSAGE', 'Placeholder Mesage')
                 PullScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict('anim_casino_a@amb@casino@games@slots@male')
                 while not HasAnimDictLoaded('anim_casino_a@amb@casino@games@slots@male') do Wait(0) end
