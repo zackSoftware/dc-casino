@@ -13,6 +13,7 @@ local ReelLocation3
 local ClosestSlotForwardX
 local ClosestSlotForwardY
 local ShouldDrawScaleForm = false
+local Scaleform
 local ClosestSlotModel
 local AnimDict = 'anim_casino_a@amb@casino@games@slots@male'
 local Slots = {
@@ -64,6 +65,11 @@ local Sounds = {
     function() PlaySoundFromCoord(-1, 'spin_wheel', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
     function() PlaySoundFromCoord(-1, 'spin_wheel_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end
 }
+local RandomEnterMessage = {
+    'Daring today?',
+    'You will lose money!',
+    'You have coins?'
+}
 
 local function DrawText3D(x, y, z, text)
     SetTextScale(0.35, 0.35)
@@ -94,10 +100,10 @@ local function CreateNamedRenderTargetForModel(name, model)
 	return handle
 end
 
-local function CallScaleformMethod (scaleform, method, ...)
+local function CallScaleformMethod(method, ...)
 	local t
 	local args = { ... }
-	BeginScaleformMovieMethod(scaleform, method)
+	BeginScaleformMovieMethod(Scaleform, method)
 	for k, v in ipairs(args) do
 		t = type(v)
 		if t == 'string' then
@@ -117,18 +123,21 @@ end
 
 local function SetupScaleform()
     CreateThread(function()
-        scaleform = RequestScaleformMovie('SLOT_MACHINE')
-        while not HasScaleformMovieLoaded(scaleform) do
-            Wait(0)
-        end
+        Scaleform = RequestScaleformMovie('SLOT_MACHINE')
+        while not HasScaleformMovieLoaded(Scaleform) do Wait(0) end
+        if SlotReferences[ClosestSlotModel].theme then
+            CallScaleformMethod('SET_THEME', SlotReferences[ClosestSlotModel].theme)
+        else
+            CallScaleformMethod('SET_THEME')
+        end    
         local model = ClosestSlotModel
         local handle = CreateNamedRenderTargetForModel("machine_"..SlotReferences[ClosestSlotModel].scriptrt, model)
         while ShouldDrawScaleForm do
-            N_0x32f34ff7f617643b(scaleform, 1)
+            N_0x32f34ff7f617643b(Scaleform, 1)
             SetTextRenderId(handle) -- Sets the render target to the handle we grab above
             SetScriptGfxDrawOrder(4)
             SetScriptGfxDrawBehindPausemenu(true)
-            DrawScaleformMovie(scaleform, 0.401, 0.09, 0.805, 0.195, 255, 255, 255, 255, 0)
+            DrawScaleformMovie(Scaleform, 0.401, 0.09, 0.805, 0.195, 255, 255, 255, 255, 0)
             SetTextRenderId(GetDefaultScriptRendertargetRenderId()) -- Resets the render target
             Wait(0)
         end
@@ -136,9 +145,6 @@ local function SetupScaleform()
 end
 
 local function SlotMachineHandler()
-    ShouldDrawScaleForm = true
-    SetupScaleform()
-    EnteredSlot = true
     local IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
     RequestAnimDict(AnimDict)
     while not HasAnimDictLoaded(AnimDict) do Wait(0) end
@@ -161,9 +167,6 @@ local function SlotMachineHandler()
                 TriggerServerEvent('dc-casino:slots:server:leave')
                 break
             elseif IsControlJustPressed(0, 201) then
-                CallScaleformMethod(scaleform, 'SET_BET', 5000)
-                CallScaleformMethod(scaleform, 'SET_LAST_WIN', 5000)
-                CallScaleformMethod(scaleform, 'SET_MESSAGE', 'Placeholder Mesage')
                 local PullScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict(AnimDict)
                 while not HasAnimDictLoaded(AnimDict) do Wait(0) end
@@ -253,7 +256,10 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     NetworkAddPedToSynchronisedScene(Ped, EnterScene, AnimDict, RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
     NetworkStartSynchronisedScene(EnterScene)
     EnteredSlot = true
+    ShouldDrawScaleForm = true
+    SetupScaleform()
     Wait(GetAnimDuration(AnimDict, RandomAnimName) * 1000)
+    CallScaleformMethod('SET_MESSAGE', RandomEnterMessage[math.random(1, #RandomEnterMessage)])
     SlotMachineHandler()
 end)
 

@@ -13,7 +13,8 @@ SlotReferences = {
         name = 'Impotent Rage',
         reela = `vw_prop_casino_slot_02a_reels`,
         reelb = `vw_prop_casino_slot_02b_reels`,
-        scriptrt = '02a'
+        scriptrt = '02a',
+        theme = 2
     },
     [-430989390] = {
         sound = 'dlc_vw_casino_slot_machine_rsr_npc_sounds',
@@ -37,7 +38,8 @@ SlotReferences = {
         name = 'Deity Of The Sun',
         reela = `vw_prop_casino_slot_05a_reels`,
         reelb = `vw_prop_casino_slot_05b_reels`,
-        scriptrt = '05a'
+        scriptrt = '05a',
+        theme = 5
     },
     [1096374064] = {
         sound = 'dlc_vw_casino_slot_machine_kd_npc_sounds',
@@ -45,7 +47,8 @@ SlotReferences = {
         name = 'Twilight Knife',
         reela = `vw_prop_casino_slot_06a_reels`,
         reelb = `vw_prop_casino_slot_06b_reels`,
-        scriptrt = '06a'
+        scriptrt = '06a',
+        theme = 6
     },
     [207578973] = {
         sound = 'dlc_vw_casino_slot_machine_td_npc_sounds',
@@ -53,7 +56,8 @@ SlotReferences = {
         name = 'Diamond Miner',
         reela = `vw_prop_casino_slot_07a_reels`,
         reelb = `vw_prop_casino_slot_07b_reels`,
-        scriptrt = '07a'
+        scriptrt = '07a',
+        theme = 7
     },
     [-487222358] = {
         sound = 'dlc_vw_casino_slot_machine_hz_npc_sounds',
@@ -61,6 +65,7 @@ SlotReferences = {
         name = 'Evacuator',
         reela = `vw_prop_casino_slot_08a_reels`,
         reelb = `vw_prop_casino_slot_08b_reels`,
-        scriptrt = '08a'
+        scriptrt = '08a',
+        theme = 8
     },
 }
