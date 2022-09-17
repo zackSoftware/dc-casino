@@ -70,6 +70,14 @@ local RandomEnterMessage = {
     'You will lose money!',
     'You have coins?'
 }
+local ChosenBetAmount = 1
+local BetAmounts = {
+    50,
+    100,
+    150,
+    250,
+    500,
+}
 
 local function DrawText3D(x, y, z, text)
     SetTextScale(0.35, 0.35)
@@ -158,7 +166,7 @@ local function SlotMachineHandler()
                 local LeaveScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict(AnimDict)
                 while not HasAnimDictLoaded(AnimDict) do Wait(0) end
-                local RandomAnimName = RandomLeave[math.random(1, #RandomLeave)]
+                RandomAnimName = RandomLeave[math.random(1, #RandomLeave)]
                 NetworkAddPedToSynchronisedScene(PlayerPedId(), LeaveScene, AnimDict, RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(LeaveScene)
                 Wait(GetAnimDuration(AnimDict, RandomAnimName) * 700)
@@ -171,7 +179,7 @@ local function SlotMachineHandler()
                 local PullScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                 RequestAnimDict(AnimDict)
                 while not HasAnimDictLoaded(AnimDict) do Wait(0) end
-                local RandomAnimName = RandomSpin[math.random(1, #RandomSpin)]
+                RandomAnimName = RandomSpin[math.random(1, #RandomSpin)]
                 if RandomAnimName == 'pull_spin_a' then
                     LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13.0)
@@ -188,6 +196,15 @@ local function SlotMachineHandler()
                 TriggerServerEvent('dc-casino:slots:server:spin', AnimationDuration)
                 Wait(AnimationDuration / 2)
                 NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
+            elseif IsControlJustPressed(0, 38) then
+                if not BetAmounts[ChosenBetAmount + 1] then ChosenBetAmount = 1 else ChosenBetAmount = ChosenBetAmount + 1 end
+                local BetOneScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+                RequestAnimDict(AnimDict)
+                while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+                NetworkAddPedToSynchronisedScene(PlayerPedId(), BetOneScene, AnimDict, 'press_betone_a', 2.0, -1.5, 13, 16, 2.0, 0)
+                NetworkStartSynchronisedScene(BetOneScene)
+                Wait(GetAnimDuration(AnimDict, 'press_betone_a') * 200)
+                CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
             end
             Wait(0)
         end
@@ -261,6 +278,7 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     SetupScaleform()
     Wait(GetAnimDuration(AnimDict, RandomAnimName) * 1000)
     CallScaleformMethod('SET_MESSAGE', RandomEnterMessage[math.random(1, #RandomEnterMessage)])
+    CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
     SlotMachineHandler()
 end)
 
