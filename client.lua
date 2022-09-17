@@ -145,6 +145,7 @@ local function SetupScaleform()
 end
 
 local function SlotMachineHandler()
+    local LeverScene = 0
     local IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
     RequestAnimDict(AnimDict)
     while not HasAnimDictLoaded(AnimDict) do Wait(0) end
@@ -172,11 +173,11 @@ local function SlotMachineHandler()
                 while not HasAnimDictLoaded(AnimDict) do Wait(0) end
                 local RandomAnimName = RandomSpin[math.random(1, #RandomSpin)]
                 if RandomAnimName == 'pull_spin_a' then
-                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0) --- Can't be localized otherwise will only work 50% of the time
+                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13.0)
                     NetworkStartSynchronisedScene(LeverScene)
                 elseif RandomAnimName == 'pull_spin_b' then
-                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0) --- Can't be localized otherwise will only work 50% of the time
+                    LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_b_SLOTMACHINE', 2.0, -1.5, 13.0)
                     NetworkStartSynchronisedScene(LeverScene)
                 end
