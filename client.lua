@@ -205,6 +205,15 @@ local function SlotMachineHandler()
                 NetworkStartSynchronisedScene(BetOneScene)
                 Wait(GetAnimDuration(AnimDict, 'press_betone_a') * 200)
                 CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
+            elseif IsControlJustPressed(0, 45) then
+                ChosenBetAmount = #BetAmounts
+                local BetMaxScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+                RequestAnimDict(AnimDict)
+                while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+                NetworkAddPedToSynchronisedScene(PlayerPedId(), BetMaxScene, AnimDict, 'press_betmax_a', 2.0, -1.5, 13, 16, 2.0, 0)
+                NetworkStartSynchronisedScene(BetMaxScene)
+                Wait(GetAnimDuration(AnimDict, 'press_betmax_a') * 200)
+                CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
             end
             Wait(0)
         end
