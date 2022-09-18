@@ -193,9 +193,10 @@ local function SlotMachineHandler()
                 NetworkStartSynchronisedScene(PullScene)
                 local AnimationDuration = GetAnimDuration(AnimDict, RandomAnimName) * 1000
                 Wait(AnimationDuration / 2)
-                TriggerServerEvent('dc-casino:slots:server:spin', AnimationDuration)
+                TriggerServerEvent('dc-casino:slots:server:spin')
                 Wait(AnimationDuration / 2)
                 NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
+                FreezeEntityPosition(ClosestSlot, true)  --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
             elseif IsControlJustPressed(0, 38) then
                 if not BetAmounts[ChosenBetAmount + 1] then ChosenBetAmount = 1 else ChosenBetAmount = ChosenBetAmount + 1 end
                 local BetOneScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
@@ -266,6 +267,7 @@ CreateThread(function()
                     SetNetworkIdExistsOnAllMachines(netID, true)
                     SetNetworkIdCanMigrate(netID, true)
                 end
+                NetworkRequestControlOfEntity(ClosestSlot)
                 TriggerServerEvent('dc-casino:slots:server:enter', netID, ReelLocation1, ReelLocation2, ReelLocation3)
             end
         end
@@ -291,8 +293,10 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     SlotMachineHandler()
 end)
 
-RegisterNetEvent('dc-casino:slots:client:spinreels', function(ReelReward1, ReelReward2, ReelReward3, BlurryReelID1, BlurryReelID2, BlurryReelID3, ReelID1, ReelID2, ReelID3)
-    local EndTime = GetGameTimer() + 4000
+RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelReward1, ReelReward2, ReelReward3, BlurryReelID1, BlurryReelID2, BlurryReelID3, ReelID1, ReelID2, ReelID3)
+    local EndTime = GetGameTimer() + SpinTime
+    local FirstReelStop = SpinTime * math.random(2, 4) / 10
+    local SecondReelStop = SpinTime * math.random(5, 7) / 10
     local SlotHeading = GetEntityHeading(ClosestSlot)
     local BlurryReel1 = NetworkGetEntityFromNetworkId(BlurryReelID1)
     local BlurryReel2 = NetworkGetEntityFromNetworkId(BlurryReelID2)
@@ -312,16 +316,16 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(ReelReward1, ReelR
     SetEntityVisible(Reel3, false)
     while GetGameTimer() < EndTime do
         SetEntityRotation(BlurryReel1, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
-        if EndTime - GetGameTimer() > 1000 then
+        if EndTime - GetGameTimer() > FirstReelStop then
             SetEntityRotation(BlurryReel2, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
-            if EndTime - GetGameTimer() < 1050 then
+            if EndTime - GetGameTimer() < FirstReelStop + 50 then
                 DeleteObject(BlurryReel2)
                 SetEntityRotation(Reel2, ReelReward2, 0.0, SlotHeading, 2, true)
                 SetEntityVisible(Reel2, true)
             end
-            if EndTime - GetGameTimer() > 2000 then
+            if EndTime - GetGameTimer() > SecondReelStop then
                 SetEntityRotation(BlurryReel3, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
-                if EndTime - GetGameTimer() < 2050 then
+                if EndTime - GetGameTimer() < SecondReelStop + 50 then
                     DeleteObject(BlurryReel3)
                     SetEntityRotation(Reel3, ReelReward3, 0.0, SlotHeading, 2, true)
                     SetEntityVisible(Reel3, true)
