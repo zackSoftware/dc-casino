@@ -51,21 +51,6 @@ local RandomSpin = {
     'pull_spin_a',
     'pull_spin_b'
 }
-local Sounds = {
-    function() PlaySoundFromCoord(-1, 'no_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'small_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'big_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'jackpot', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'place_bet', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'place_max_bet', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'spinning', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'start_spin', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'welcome_stinger', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'spin_wheel', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end,
-    function() PlaySoundFromCoord(-1, 'spin_wheel_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) end
-}
 local RandomEnterMessage = {
     'Daring today?',
     'You will lose money!',
@@ -197,12 +182,14 @@ local function SlotMachineHandler()
                         Wait(AnimationDuration * 320)
                     end
                     Wait(AnimationDuration * 180)
+                    PlaySoundFromCoord(-1, 'start_spin', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
                     IsSpinning = true
                     TriggerServerEvent('dc-casino:slots:server:spin')
                     Wait(AnimationDuration * 500)
                     NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
                     FreezeEntityPosition(ClosestSlot, true)  --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
                 elseif IsControlJustPressed(0, 38) then
+                    PlaySoundFromCoord(-1, 'place_bet', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
                     if not BetAmounts[ChosenBetAmount + 1] then ChosenBetAmount = 1 else ChosenBetAmount = ChosenBetAmount + 1 end
                     local BetOneScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     RequestAnimDict(AnimDict)
@@ -212,6 +199,7 @@ local function SlotMachineHandler()
                     Wait(GetAnimDuration(AnimDict, 'press_betone_a') * 200)
                     CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
                 elseif IsControlJustPressed(0, 45) then
+                    PlaySoundFromCoord(-1, 'place_max_bet', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)             
                     ChosenBetAmount = #BetAmounts
                     local BetMaxScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     RequestAnimDict(AnimDict)
@@ -296,6 +284,7 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     Wait(GetAnimDuration(AnimDict, RandomAnimName) * 1000)
     CallScaleformMethod('SET_MESSAGE', RandomEnterMessage[math.random(1, #RandomEnterMessage)])
     CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
+    PlaySoundFromCoord(-1, 'welcome_stinger', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
     SlotMachineHandler()
 end)
 
@@ -319,22 +308,35 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
     while not NetworkRequestControlOfEntity(Reel1) do Wait(0) end
     while not NetworkRequestControlOfEntity(Reel2) do Wait(0) end
     while not NetworkRequestControlOfEntity(Reel3) do Wait(0) end
-
+    
     SetEntityVisible(Reel1, false)
     SetEntityVisible(Reel2, false)
     SetEntityVisible(Reel3, false)
+    PlaySoundFromCoord(-1, 'spinning', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
     while GetGameTimer() < EndTime do
         SetEntityRotation(BlurryReel1, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
         if EndTime - GetGameTimer() > FirstReelStop then
             SetEntityRotation(BlurryReel2, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
-            if EndTime - GetGameTimer() < FirstReelStop + 50 then
+            if EndTime - GetGameTimer() < FirstReelStop + 15 then
+                if ReelRewards[2] == math.floor(ReelRewards[2]) then
+                    PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
+                else
+                    PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
+                end
                 DeleteObject(BlurryReel2)
                 SetEntityRotation(Reel2, ReelReward2, 0.0, SlotHeading, 2, true)
                 SetEntityVisible(Reel2, true)
             end
             if EndTime - GetGameTimer() > SecondReelStop then
                 SetEntityRotation(BlurryReel3, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
-                if EndTime - GetGameTimer() < SecondReelStop + 50 then
+                if EndTime - GetGameTimer() < SecondReelStop + 15 then
+                    if ReelRewards[3] == math.floor(ReelRewards[3]) then
+                        PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
+                    else
+                        PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
+                    end
+                    local PlayAudio = Sounds[9]
+                    PlayAudio()
                     DeleteObject(BlurryReel3)
                     SetEntityRotation(Reel3, ReelReward3, 0.0, SlotHeading, 2, true)
                     SetEntityVisible(Reel3, true)
@@ -344,6 +346,11 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         Wait(0)
     end
     IsSpinning = false
+    if ReelRewards[1] == math.floor(ReelRewards[1]) then
+        PlaySoundFromCoord(-1, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
+    else
+        PlaySoundFromCoord(-1, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false)
+    end
     DeleteObject(BlurryReel1)
     SetEntityRotation(Reel1, ReelReward1, 0.0, SlotHeading, 2, true)
     SetEntityVisible(Reel1, true)

@@ -101,7 +101,6 @@ RegisterNetEvent('dc-casino:slots:server:spin', function()
             end
             RewardMultiplier = SpecialReward[RewardMultiplier] or 0
         end
-        if BetAmount * RewardMultiplier == 0 then return end
     end)
 end)
 
