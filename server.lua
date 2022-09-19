@@ -63,16 +63,15 @@ end)
 RegisterNetEvent('dc-casino:slots:server:spin', function()
     local src = source
     local SpinTime = math.random(4000, 6000)
-    local ReelRewards = {
-        math.random(0, 15),
-        math.random(0, 15),
-        math.random(0, 15)
-    }
+    local ReelRewards = {math.random(0, 15), math.random(0, 15), math.random(0, 15)}
     local SlotHeading = GetEntityHeading(Slots[src].Slot)
     local SlotModel = GetEntityModel(Slots[src].Slot)
 
     if not Slots[src] then return end
 
+    for i = 1, #ReelRewards do
+        if SlotReferences[SlotModel].misschance > math.random(1, 100) then ReelRewards[i] = ReelRewards[i] + math.random(4, 6) / 10 end
+    end
     local BlurryReel1 = CreateObject(SlotReferences[SlotModel].reelb, Slots[src].ReelLoc1, true, false, false)
     local BlurryReel2 = CreateObject(SlotReferences[SlotModel].reelb, Slots[src].ReelLoc2, true, false, false)
     local BlurryReel3 = CreateObject(SlotReferences[SlotModel].reelb, Slots[src].ReelLoc3, true, false, false)
@@ -85,7 +84,7 @@ RegisterNetEvent('dc-casino:slots:server:spin', function()
     SetEntityRotation(BlurryReel1, 0.0, 0.0, SlotHeading, 2, 1)
     SetEntityRotation(BlurryReel2, 0.0, 0.0, SlotHeading, 2, 1)
     SetEntityRotation(BlurryReel3, 0.0, 0.0, SlotHeading, 2, 1)
-    TriggerClientEvent('dc-casino:slots:client:spinreels', src, SpinTime, ReelRewards[1] * 22.5, ReelRewards[2] * 22.5, ReelRewards[3] * 22.5, NetworkGetNetworkIdFromEntity(BlurryReel1), NetworkGetNetworkIdFromEntity(BlurryReel2), NetworkGetNetworkIdFromEntity(BlurryReel3), NetworkGetNetworkIdFromEntity(Slots[src].Reel1), NetworkGetNetworkIdFromEntity(Slots[src].Reel2), NetworkGetNetworkIdFromEntity(Slots[src].Reel3))
+    TriggerClientEvent('dc-casino:slots:client:spinreels', src, SpinTime, ReelRewards, NetworkGetNetworkIdFromEntity(BlurryReel1), NetworkGetNetworkIdFromEntity(BlurryReel2), NetworkGetNetworkIdFromEntity(BlurryReel3), NetworkGetNetworkIdFromEntity(Slots[src].Reel1), NetworkGetNetworkIdFromEntity(Slots[src].Reel2), NetworkGetNetworkIdFromEntity(Slots[src].Reel3))
     SetTimeout(SpinTime, function()
         local RewardMultiplier = 0
         for k, v in pairs(Rewards) do

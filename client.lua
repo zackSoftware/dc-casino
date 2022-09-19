@@ -295,10 +295,13 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     SlotMachineHandler()
 end)
 
-RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelReward1, ReelReward2, ReelReward3, BlurryReelID1, BlurryReelID2, BlurryReelID3, ReelID1, ReelID2, ReelID3)
+RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewards, BlurryReelID1, BlurryReelID2, BlurryReelID3, ReelID1, ReelID2, ReelID3)
     local EndTime = GetGameTimer() + SpinTime
     local FirstReelStop = SpinTime * math.random(2, 4) / 10
     local SecondReelStop = SpinTime * math.random(5, 7) / 10
+    local ReelReward1 = ReelRewards[1] * 22.5
+    local ReelReward2 = ReelRewards[2] * 22.5
+    local ReelReward3 = ReelRewards[3] * 22.5
     local SlotHeading = GetEntityHeading(ClosestSlot)
     local BlurryReel1 = NetworkGetEntityFromNetworkId(BlurryReelID1)
     local BlurryReel2 = NetworkGetEntityFromNetworkId(BlurryReelID2)
