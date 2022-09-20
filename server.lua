@@ -21,6 +21,7 @@ end
 
 RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, ReelLocation2, ReelLocation3)
     local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
     local PlayerCoords = GetEntityCoords(GetPlayerPed(src))
     local SlotEntity = NetworkGetEntityFromNetworkId(netID)
     local SlotModel = GetEntityModel(SlotEntity)
@@ -57,6 +58,8 @@ RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, 
         SetEntityRotation(Slots[src].Reel1, 0.0, 0.0, SlotHeading, 2, 1)
         SetEntityRotation(Slots[src].Reel2, 0.0, 0.0, SlotHeading, 2, 1)
         SetEntityRotation(Slots[src].Reel3, 0.0, 0.0, SlotHeading, 2, 1)
+        TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Entered a slot | Slot NetID %s | Slot Locations %s | Reel Locations %s %s %s | Player Location %s | Slot Model %s",
+        GetPlayerName(src), Player.PlayerData.citizenid, src, netID, SlotCoords, ReelLocation1, ReelLocation2, ReelLocation3, PlayerCoords, SlotModel))
     end)
 end)
 
@@ -70,10 +73,10 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
 
     if not Slots[src] then return end
     if not SlotReferences[SlotModel].betamounts[ChosenBetAmount] then return end
-
     if UseCash and Player.Functions.RemoveMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
     or UseBank and Player.Functions.RemoveMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
-    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then end
+    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
+
     for i = 1, #ReelRewards do
         if SlotReferences[SlotModel].misschance > math.random(1, 100) then ReelRewards[i] = ReelRewards[i] + math.random(4, 6) / 10 end
     end
@@ -106,10 +109,13 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     end
     TriggerClientEvent('dc-casino:slots:client:spinreels', src, SpinTime, ReelRewards, NetworkGetNetworkIdFromEntity(BlurryReel1), NetworkGetNetworkIdFromEntity(BlurryReel2), NetworkGetNetworkIdFromEntity(BlurryReel3), NetworkGetNetworkIdFromEntity(Slots[src].Reel1), NetworkGetNetworkIdFromEntity(Slots[src].Reel2), NetworkGetNetworkIdFromEntity(Slots[src].Reel3), RewardMultiplier)
     SetTimeout(SpinTime, function()
+        local RewardAmount = SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier
+        TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Spinned a casino slot for %s and won %s",
+        GetPlayerName(src), Player.PlayerData.citizenid, src, SlotReferences[SlotModel].betamounts[ChosenBetAmount], RewardAmount))
         if RewardMultiplier == 0 then return end
-        if UseCash and Player.Functions.AddMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier, 'Casino Slot Spin')
-        or UseBank and Player.Functions.AddMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier, 'Casino Slot Spin')
-        or UseItem and Player.Functions.AddItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier) then end    
+        if UseCash and Player.Functions.AddMoney('cash', RewardAmount, 'Casino Slot Spin')
+        or UseBank and Player.Functions.AddMoney('bank', RewardAmount, 'Casino Slot Spin')
+        or UseItem and Player.Functions.AddItem(ItemName, RewardAmount) then end    
     end)
 end)
 

@@ -227,9 +227,13 @@ local function SlotMachineHandler()
                     end
                     Wait(AnimationDuration * 180)
                     Sounds[8]()
-                    IsSpinning = true
                     TriggerServerEvent('dc-casino:slots:server:spin', ChosenBetAmount)
                     Wait(AnimationDuration * 500)
+                    local SpinningScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+                    RequestAnimDict(AnimDict)
+                    while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+                    NetworkAddPedToSynchronisedScene(PlayerPedId(), SpinningScene, AnimDict, RandomSpinningIdle[math.random(1, #RandomSpinningIdle)], 2.0, -1.5, 13, 16, 2.0, 0)
+                    NetworkStartSynchronisedScene(SpinningScene)                
                     NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
                     FreezeEntityPosition(ClosestSlot, true)  --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
                 elseif IsControlJustPressed(0, 38) then
@@ -353,12 +357,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
     while not NetworkRequestControlOfEntity(Reel2) do Wait(0) end
     while not NetworkRequestControlOfEntity(Reel3) do Wait(0) end
 
-    local SpinningScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
-    RequestAnimDict(AnimDict)
-    while not HasAnimDictLoaded(AnimDict) do Wait(0) end
-    NetworkAddPedToSynchronisedScene(PlayerPedId(), SpinningScene, AnimDict, RandomSpinningIdle[math.random(1, #RandomSpinningIdle)], 2.0, -1.5, 13, 16, 2.0, 0)
-    NetworkStartSynchronisedScene(SpinningScene)
-
+    IsSpinning = true
     SetEntityVisible(Reel1, false)
     SetEntityVisible(Reel2, false)
     SetEntityVisible(Reel3, false)
