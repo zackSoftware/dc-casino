@@ -73,13 +73,6 @@ local RandomEnterMessage = {
     'You have coins?'
 }
 local ChosenBetAmount = 1
-local BetAmounts = {
-    50,
-    100,
-    150,
-    250,
-    500,
-}
 
 local function DrawText3D(x, y, z, text)
     SetTextScale(0.35, 0.35)
@@ -178,6 +171,7 @@ local function SlotMachineHandler()
                     EnteredSlot = false
                     ShouldDrawScaleForm = false
                     exports['qb-core']:HideText()
+                    CallScaleformMethod('SET_BET')
                     TriggerServerEvent('dc-casino:slots:server:leave')
                     break
                 elseif IsControlJustPressed(0, 201) then
@@ -208,24 +202,24 @@ local function SlotMachineHandler()
                     FreezeEntityPosition(ClosestSlot, true)  --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
                 elseif IsControlJustPressed(0, 38) then
                     Sounds[5]()
-                    if not BetAmounts[ChosenBetAmount + 1] then ChosenBetAmount = 1 else ChosenBetAmount = ChosenBetAmount + 1 end
+                    if not SlotReferences[ClosestSlotModel].betamounts[ChosenBetAmount + 1] then ChosenBetAmount = 1 else ChosenBetAmount = ChosenBetAmount + 1 end
                     local BetOneScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     RequestAnimDict(AnimDict)
                     while not HasAnimDictLoaded(AnimDict) do Wait(0) end
                     NetworkAddPedToSynchronisedScene(PlayerPedId(), BetOneScene, AnimDict, 'press_betone_a', 2.0, -1.5, 13, 16, 2.0, 0)
                     NetworkStartSynchronisedScene(BetOneScene)
                     Wait(GetAnimDuration(AnimDict, 'press_betone_a') * 200)
-                    CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
+                    CallScaleformMethod('SET_BET', SlotReferences[ClosestSlotModel].betamounts[ChosenBetAmount])
                 elseif IsControlJustPressed(0, 45) then
                     Sounds[6]()
-                    ChosenBetAmount = #BetAmounts
+                    ChosenBetAmount = #SlotReferences[ClosestSlotModel].betamounts
                     local BetMaxScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     RequestAnimDict(AnimDict)
                     while not HasAnimDictLoaded(AnimDict) do Wait(0) end
                     NetworkAddPedToSynchronisedScene(PlayerPedId(), BetMaxScene, AnimDict, 'press_betmax_a', 2.0, -1.5, 13, 16, 2.0, 0)
                     NetworkStartSynchronisedScene(BetMaxScene)
                     Wait(GetAnimDuration(AnimDict, 'press_betmax_a') * 200)
-                    CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
+                    CallScaleformMethod('SET_BET', SlotReferences[ClosestSlotModel].betamounts[ChosenBetAmount])
                 end
             end
             Wait(0)
@@ -301,7 +295,7 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     SetupScaleform()
     Wait(GetAnimDuration(AnimDict, RandomAnimName) * 1000)
     CallScaleformMethod('SET_MESSAGE', RandomEnterMessage[math.random(1, #RandomEnterMessage)])
-    CallScaleformMethod('SET_BET', BetAmounts[ChosenBetAmount])
+    CallScaleformMethod('SET_BET', SlotReferences[ClosestSlotModel].betamounts[ChosenBetAmount])
     Sounds[11]()
     SlotMachineHandler()
 end)
