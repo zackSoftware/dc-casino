@@ -205,6 +205,7 @@ local function SlotMachineHandler()
                     ShouldDrawScaleForm = false
                     exports['qb-core']:HideText()
                     CallScaleformMethod('SET_BET')
+                    CallScaleformMethod('SET_LAST_WIN')
                     CallScaleformMethod('SET_MESSAGE', '')
                     TriggerServerEvent('dc-casino:slots:server:leave')
                     break
@@ -396,6 +397,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
     DeleteObject(BlurryReel1)
     SetEntityRotation(Reel1, ReelReward1, 0.0, SlotHeading, 2, true)
     SetEntityVisible(Reel1, true)
+    CallScaleformMethod('SET_LAST_WIN', SlotReferences[ClosestSlotModel].betamounts[ChosenBetAmount] * RewardMultiplier)
     if ReelRewards[1] == math.floor(ReelRewards[1]) then Sounds[9]() else Sounds[10]() end
     if RewardMultiplier == 0 then
         Sounds[1]()
