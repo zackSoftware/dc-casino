@@ -2,12 +2,10 @@ local Slot
 local SlotCoords
 local ClosestSlot
 local ClosestSlotCoord = vector3(0, 0, 0)
+local ClosestSlotRotation
 local NearbySlot
 local EnteredSlot
 local IsSpinning
-local SlotObject1
-local SlotObject2
-local SlotObject3
 local ReelLocation1
 local ReelLocation2
 local ReelLocation3
@@ -17,7 +15,6 @@ local ShouldDrawScaleForm = false
 local Scaleform
 local ClosestSlotModel
 local AnimDict = 'anim_casino_a@amb@casino@games@slots@male'
-local QBCore = exports['qb-core']:GetCoreObject()
 local Sounds = {
     function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'no_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
     function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'small_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
@@ -149,7 +146,7 @@ local function CallScaleformMethod(method, ...)
 	local t
 	local args = { ... }
 	BeginScaleformMovieMethod(Scaleform, method)
-	for k, v in ipairs(args) do
+	for _, v in ipairs(args) do
 		t = type(v)
 		if t == 'string' then
 			PushScaleformMovieMethodParameterString(v)
@@ -170,10 +167,11 @@ local function SetupScaleform()
     CreateThread(function()
         Scaleform = RequestScaleformMovie('SLOT_MACHINE')
         while not HasScaleformMovieLoaded(Scaleform) do Wait(0) end
-        if SlotReferences[ClosestSlotModel].theme then CallScaleformMethod('SET_THEME', SlotReferences[ClosestSlotModel].theme) else CallScaleformMethod('SET_THEME') end    
+        if SlotReferences[ClosestSlotModel].theme then CallScaleformMethod('SET_THEME', SlotReferences[ClosestSlotModel].theme) else CallScaleformMethod('SET_THEME') end
         local model = ClosestSlotModel
         local handle = CreateNamedRenderTargetForModel("machine_"..SlotReferences[ClosestSlotModel].scriptrt, model)
         while ShouldDrawScaleForm do
+            -- luacheck: ignore
             N_0x32f34ff7f617643b(Scaleform, 1)
             SetTextRenderId(handle) -- Sets the render target to the handle we grab above
             SetScriptGfxDrawOrder(4)
@@ -220,11 +218,13 @@ local function SlotMachineHandler()
                     local AnimationDuration = GetAnimDuration(AnimDict, RandomAnimName)
                     if RandomAnimName == 'pull_spin_a' then
                         LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+                        -- luacheck: ignore
                         N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13.0)
                         NetworkStartSynchronisedScene(LeverScene)
                         Wait(AnimationDuration * 320)
                     elseif RandomAnimName == 'pull_spin_b' then
                         LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+                        -- luacheck: ignore
                         N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_b_SLOTMACHINE', 2.0, -1.5, 13.0)
                         NetworkStartSynchronisedScene(LeverScene)
                         Wait(AnimationDuration * 320)
@@ -236,7 +236,7 @@ local function SlotMachineHandler()
                     local SpinningScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
                     LoadAnimDict(AnimDict)
                     NetworkAddPedToSynchronisedScene(PlayerPedId(), SpinningScene, AnimDict, RandomSpinningIdle[math.random(1, #RandomSpinningIdle)], 2.0, -1.5, 13, 16, 2.0, 0)
-                    NetworkStartSynchronisedScene(SpinningScene)                
+                    NetworkStartSynchronisedScene(SpinningScene)
                     NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
                     FreezeEntityPosition(ClosestSlot, true)  --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
                 elseif IsControlJustPressed(0, 38) then

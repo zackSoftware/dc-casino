@@ -48,7 +48,7 @@ RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, 
         local ReelEntity3 = CreateObject(SlotReferences[SlotModel].reela, ReelLocation3, true, false, false)
         while not DoesEntityExist(ReelEntity1) do Wait(0) end
         while not DoesEntityExist(ReelEntity2) do Wait(0) end
-        while not DoesEntityExist(ReelEntity3) do Wait(0) end    
+        while not DoesEntityExist(ReelEntity3) do Wait(0) end
         Slots[src] = {
             Slot = NetworkGetEntityFromNetworkId(netID),
             SlotNetID = netID,
@@ -83,7 +83,8 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     if not SlotReferences[SlotModel].betamounts[ChosenBetAmount] then return end
     if UseCash and Player.Functions.RemoveMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
     or UseBank and Player.Functions.RemoveMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
-    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
+    -- luacheck: ignore
+    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then  else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
 
     for i = 1, #ReelRewards do
         if SlotReferences[SlotModel].misschance > math.random(1, 100) then ReelRewards[i] = ReelRewards[i] + math.random(4, 6) / 10 end
@@ -123,7 +124,8 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
         if RewardMultiplier == 0 then return end
         if UseCash and Player.Functions.AddMoney('cash', RewardAmount, 'Casino Slot Spin')
         or UseBank and Player.Functions.AddMoney('bank', RewardAmount, 'Casino Slot Spin')
-        or UseItem and Player.Functions.AddItem(ItemName, RewardAmount) then end    
+        -- luacheck: ignore
+        or UseItem and Player.Functions.AddItem(ItemName, RewardAmount) then end
     end)
 end)
 
