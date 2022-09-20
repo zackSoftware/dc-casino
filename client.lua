@@ -86,7 +86,6 @@ local RandomLose = {
     'lose_d',
     'lose_e',
     'lose_f',
-    'lose_spinning_wheel',
     'lose_cruel_a',
     'lose_cruel_b'
 }
