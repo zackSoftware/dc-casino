@@ -227,3 +227,8 @@ SpecialReward = {
     3.5,
     9.0
 }
+
+UseCash = true
+UseBank = false
+UseItem = false
+ItemName = 'casinochips'

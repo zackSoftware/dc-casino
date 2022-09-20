@@ -60,15 +60,20 @@ RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, 
     end)
 end)
 
-RegisterNetEvent('dc-casino:slots:server:spin', function()
+RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     local src = source
     local SpinTime = math.random(4000, 6000)
     local ReelRewards = {math.random(0, 15), math.random(0, 15), math.random(0, 15)}
     local SlotHeading = GetEntityHeading(Slots[src].Slot)
     local SlotModel = GetEntityModel(Slots[src].Slot)
+    local Player = QBCore.Functions.GetPlayer(src)
 
     if not Slots[src] then return end
+    if not SlotReferences[SlotModel].betamounts[ChosenBetAmount] then return end
 
+    if UseCash and Player.Functions.RemoveMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
+    or UseBank and Player.Functions.RemoveMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
+    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then end
     for i = 1, #ReelRewards do
         if SlotReferences[SlotModel].misschance > math.random(1, 100) then ReelRewards[i] = ReelRewards[i] + math.random(4, 6) / 10 end
     end
@@ -101,6 +106,10 @@ RegisterNetEvent('dc-casino:slots:server:spin', function()
             end
             RewardMultiplier = SpecialReward[RewardMultiplier] or 0
         end
+        if RewardMultiplier == 0 then return end
+        if UseCash and Player.Functions.AddMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier, 'Casino Slot Spin')
+        or UseBank and Player.Functions.AddMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier, 'Casino Slot Spin')
+        or UseItem and Player.Functions.AddItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier) then end    
     end)
 end)
 

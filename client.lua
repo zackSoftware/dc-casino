@@ -172,6 +172,7 @@ local function SlotMachineHandler()
                     ShouldDrawScaleForm = false
                     exports['qb-core']:HideText()
                     CallScaleformMethod('SET_BET')
+                    CallScaleformMethod('SET_MESSAGE', '')
                     TriggerServerEvent('dc-casino:slots:server:leave')
                     break
                 elseif IsControlJustPressed(0, 201) then
@@ -196,7 +197,7 @@ local function SlotMachineHandler()
                     Wait(AnimationDuration * 180)
                     Sounds[8]()
                     IsSpinning = true
-                    TriggerServerEvent('dc-casino:slots:server:spin')
+                    TriggerServerEvent('dc-casino:slots:server:spin', ChosenBetAmount)
                     Wait(AnimationDuration * 500)
                     NetworkStopSynchronisedScene(LeverScene) --- Has to be stopped otherwise it will only work 50% of the time
                     FreezeEntityPosition(ClosestSlot, true)  --- N_0x45f35c0edc33b03b will prevent the machine being stuck to their position for some reason?
