@@ -256,6 +256,14 @@ local function SlotMachineHandler()
                     NetworkStartSynchronisedScene(BetMaxScene)
                     Wait(GetAnimDuration(AnimDict, 'press_betmax_a') * 200)
                     CallScaleformMethod('SET_BET', SlotReferences[ClosestSlotModel].betamounts[ChosenBetAmount])
+                elseif IsEntityDead(PlayerPedId()) then
+                    EnteredSlot = false
+                    ShouldDrawScaleForm = false
+                    exports['qb-core']:HideText()
+                    CallScaleformMethod('SET_BET')
+                    CallScaleformMethod('SET_MESSAGE', '')
+                    TriggerServerEvent('dc-casino:slots:server:leave')
+                    break
                 end
             end
             Wait(0)

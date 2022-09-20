@@ -19,6 +19,14 @@ local function table_matches(t1, t2)
 	return true
 end
 
+local function LeaveSlot(source)
+    if DoesEntityExist(Slots[source].Reel1) then DeleteEntity(Slots[source].Reel1) end
+    if DoesEntityExist(Slots[source].Reel2) then DeleteEntity(Slots[source].Reel2) end
+    if DoesEntityExist(Slots[source].Reel3) then DeleteEntity(Slots[source].Reel3) end
+    UsedSlots[Slots[source].SlotNetID] = false
+    Slots[source] = {}
+end
+
 RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, ReelLocation2, ReelLocation3)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
@@ -120,10 +128,9 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
 end)
 
 RegisterNetEvent('dc-casino:slots:server:leave', function()
-    local src = source
-    if DoesEntityExist(Slots[src].Reel1) then DeleteEntity(Slots[src].Reel1) end
-    if DoesEntityExist(Slots[src].Reel2) then DeleteEntity(Slots[src].Reel2) end
-    if DoesEntityExist(Slots[src].Reel3) then DeleteEntity(Slots[src].Reel3) end
-    UsedSlots[Slots[src].SlotNetID] = false
-    Slots[src] = {}
+    LeaveSlot(source)
+end)
+
+AddEventHandler("playerDropped", function()
+    LeaveSlot(source)
 end)
