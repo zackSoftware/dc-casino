@@ -17,6 +17,7 @@ local ShouldDrawScaleForm = false
 local Scaleform
 local ClosestSlotModel
 local AnimDict = 'anim_casino_a@amb@casino@games@slots@male'
+local QBCore = exports['qb-core']:GetCoreObject()
 local Sounds = {
     function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'no_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
     function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'small_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
@@ -161,6 +162,7 @@ local function SlotMachineHandler()
     local RandomAnimName = RandomIdle[math.random(1, #RandomIdle)]
     NetworkAddPedToSynchronisedScene(PlayerPedId(), IdleScene, AnimDict, RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
     NetworkStartSynchronisedScene(IdleScene)
+    exports['qb-core']:DrawText('E - Bet One <br> R - Bet Max <br> ↵ - Spin <br> ← - Leave', 'left')
     CreateThread(function()
         while true do
             if not IsSpinning then
@@ -175,6 +177,7 @@ local function SlotMachineHandler()
                     NetworkStopSynchronisedScene(LeaveScene)
                     EnteredSlot = false
                     ShouldDrawScaleForm = false
+                    exports['qb-core']:HideText()
                     TriggerServerEvent('dc-casino:slots:server:leave')
                     break
                 elseif IsControlJustPressed(0, 201) then
