@@ -393,7 +393,6 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         end
         Wait(0)
     end
-    IsSpinning = false
     DeleteObject(BlurryReel1)
     SetEntityRotation(Reel1, ReelReward1, 0.0, SlotHeading, 2, true)
     SetEntityVisible(Reel1, true)
@@ -423,4 +422,5 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         NetworkStartSynchronisedScene(WinScene)
         StartIdleScene(RandomAnim)
     end
+    IsSpinning = false
 end)
