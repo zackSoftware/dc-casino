@@ -400,7 +400,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
     SetEntityVisible(Reel1, true)
     if ReelRewards[1] == math.floor(ReelRewards[1]) then Sounds[9]() else Sounds[10]() end
     if RewardMultiplier == 0 then
-        Sounds[0]()
+        Sounds[1]()
         local LoseScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
         LoadAnimDict(AnimDict)
         local RandomAnim = RandomLose[math.random(1, #RandomLose)]
@@ -408,7 +408,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         NetworkStartSynchronisedScene(LoseScene)
         StartIdleScene(RandomAnim)
     elseif RewardMultiplier > 7 then
-        if ReelReward1 == 5 and ReelReward2 == 5 and ReelReward3 == 5 then Sounds[4]() else Sounds[2]() end
+        if ReelReward1 == 5 and ReelReward2 == 5 and ReelReward3 == 5 then Sounds[4]() else Sounds[3]() end
         local BigWinScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
         LoadAnimDict(AnimDict)
         local RandomAnim = RandomBigWin[math.random(1, #RandomBigWin)]
@@ -416,7 +416,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         NetworkStartSynchronisedScene(BigWinScene)
         StartIdleScene(RandomAnim)
     else
-        Sounds[1]()
+        Sounds[2]()
         local WinScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
         LoadAnimDict(AnimDict)
         local RandomAnim = RandomWin[math.random(1, #RandomWin)]
