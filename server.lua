@@ -89,23 +89,23 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     SetEntityRotation(BlurryReel1, 0.0, 0.0, SlotHeading, 2, 1)
     SetEntityRotation(BlurryReel2, 0.0, 0.0, SlotHeading, 2, 1)
     SetEntityRotation(BlurryReel3, 0.0, 0.0, SlotHeading, 2, 1)
-    TriggerClientEvent('dc-casino:slots:client:spinreels', src, SpinTime, ReelRewards, NetworkGetNetworkIdFromEntity(BlurryReel1), NetworkGetNetworkIdFromEntity(BlurryReel2), NetworkGetNetworkIdFromEntity(BlurryReel3), NetworkGetNetworkIdFromEntity(Slots[src].Reel1), NetworkGetNetworkIdFromEntity(Slots[src].Reel2), NetworkGetNetworkIdFromEntity(Slots[src].Reel3))
+    local RewardMultiplier = 0
+    for k, v in pairs(Rewards) do
+        if table_matches(k, ReelRewards) then
+            RewardMultiplier = v
+            break
+        end
+    end
+    if RewardMultiplier == 0 then
+        for i = 1, #ReelRewards do
+            if ReelRewards[i] == 4 or ReelRewards[i] == 11 or ReelRewards[i] == 15 then
+                RewardMultiplier = RewardMultiplier + 1
+            end
+        end
+        RewardMultiplier = SpecialReward[RewardMultiplier] or 0
+    end
+    TriggerClientEvent('dc-casino:slots:client:spinreels', src, SpinTime, ReelRewards, NetworkGetNetworkIdFromEntity(BlurryReel1), NetworkGetNetworkIdFromEntity(BlurryReel2), NetworkGetNetworkIdFromEntity(BlurryReel3), NetworkGetNetworkIdFromEntity(Slots[src].Reel1), NetworkGetNetworkIdFromEntity(Slots[src].Reel2), NetworkGetNetworkIdFromEntity(Slots[src].Reel3), RewardMultiplier)
     SetTimeout(SpinTime, function()
-        local RewardMultiplier = 0
-        for k, v in pairs(Rewards) do
-            if table_matches(k, ReelRewards) then
-                RewardMultiplier = v
-                break
-            end
-        end
-        if RewardMultiplier == 0 then
-            for i = 1, #ReelRewards do
-                if ReelRewards[i] == 4 or ReelRewards[i] == 11 or ReelRewards[i] == 15 then
-                    RewardMultiplier = RewardMultiplier + 1
-                end
-            end
-            RewardMultiplier = SpecialReward[RewardMultiplier] or 0
-        end
         if RewardMultiplier == 0 then return end
         if UseCash and Player.Functions.AddMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier, 'Casino Slot Spin')
         or UseBank and Player.Functions.AddMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier, 'Casino Slot Spin')

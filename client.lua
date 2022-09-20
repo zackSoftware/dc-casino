@@ -67,6 +67,37 @@ local RandomSpin = {
     'pull_spin_a',
     'pull_spin_b'
 }
+local RandomSpinningIdle = {
+    'spinning_a',
+    'spinning_b',
+    'spinning_c'
+}
+local RandomWin = {
+    'win_a',
+    'win_b',
+    'win_c',
+    'win_d',
+    'win_e',
+    'win_f',
+    'win_g',
+    'win_spinning_wheel'
+}
+local RandomLose = {
+    'lose_a',
+    'lose_b',
+    'lose_c',
+    'lose_d',
+    'lose_e',
+    'lose_f',
+    'lose_spinning_wheel',
+    'lose_cruel_a',
+    'lose_cruel_b'
+}
+local RandomBigWin = {
+    'win_big_a',
+    'win_big_b',
+    'win_big_c'
+}
 local RandomEnterMessage = {
     'Daring today?',
     'You will lose money!',
@@ -301,7 +332,7 @@ RegisterNetEvent('dc-casino:slots:client:enter', function()
     SlotMachineHandler()
 end)
 
-RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewards, BlurryReelID1, BlurryReelID2, BlurryReelID3, ReelID1, ReelID2, ReelID3)
+RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewards, BlurryReelID1, BlurryReelID2, BlurryReelID3, ReelID1, ReelID2, ReelID3, RewardMultiplier)
     local EndTime = GetGameTimer() + SpinTime
     local FirstReelStop = SpinTime * math.random(2, 4) / 10
     local SecondReelStop = SpinTime * math.random(5, 7) / 10
@@ -321,7 +352,13 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
     while not NetworkRequestControlOfEntity(Reel1) do Wait(0) end
     while not NetworkRequestControlOfEntity(Reel2) do Wait(0) end
     while not NetworkRequestControlOfEntity(Reel3) do Wait(0) end
-    
+
+    local SpinningScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+    RequestAnimDict(AnimDict)
+    while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+    NetworkAddPedToSynchronisedScene(PlayerPedId(), SpinningScene, AnimDict, RandomSpinningIdle[math.random(1, #RandomSpinningIdle)], 2.0, -1.5, 13, 16, 2.0, 0)
+    NetworkStartSynchronisedScene(SpinningScene)
+
     SetEntityVisible(Reel1, false)
     SetEntityVisible(Reel2, false)
     SetEntityVisible(Reel3, false)
@@ -331,11 +368,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         if EndTime - GetGameTimer() > FirstReelStop then
             SetEntityRotation(BlurryReel2, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
             if EndTime - GetGameTimer() < FirstReelStop + 15 then
-                if ReelRewards[2] == math.floor(ReelRewards[2]) then
-                    Sounds[9]()
-                else
-                    Sounds[10]()
-                end
+                if ReelRewards[2] == math.floor(ReelRewards[2]) then Sounds[9]() else Sounds[10]() end
                 DeleteObject(BlurryReel2)
                 SetEntityRotation(Reel2, ReelReward2, 0.0, SlotHeading, 2, true)
                 SetEntityVisible(Reel2, true)
@@ -343,13 +376,7 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
             if EndTime - GetGameTimer() > SecondReelStop then
                 SetEntityRotation(BlurryReel3, math.random(0, 15) * 22.5 + math.random(1, 60), 0.0, SlotHeading, 2, true)
                 if EndTime - GetGameTimer() < SecondReelStop + 15 then
-                    if ReelRewards[3] == math.floor(ReelRewards[3]) then
-                        Sounds[9]()
-                    else
-                        Sounds[10]()
-                    end
-                    local PlayAudio = Sounds[9]
-                    PlayAudio()
+                    if ReelRewards[3] == math.floor(ReelRewards[3]) then Sounds[9]() else Sounds[10]() end
                     DeleteObject(BlurryReel3)
                     SetEntityRotation(Reel3, ReelReward3, 0.0, SlotHeading, 2, true)
                     SetEntityVisible(Reel3, true)
@@ -359,10 +386,25 @@ RegisterNetEvent('dc-casino:slots:client:spinreels', function(SpinTime, ReelRewa
         Wait(0)
     end
     IsSpinning = false
-    if ReelRewards[1] == math.floor(ReelRewards[1]) then
-        Sounds[9]()
+    if ReelRewards[1] == math.floor(ReelRewards[1]) then Sounds[9]() else Sounds[10]() end
+    if RewardMultiplier == 0 then
+        local LoseScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+        RequestAnimDict(AnimDict)
+        while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+        NetworkAddPedToSynchronisedScene(PlayerPedId(), LoseScene, AnimDict, RandomLose[math.random(1, #RandomLose)], 2.0, -1.5, 13, 16, 2.0, 0)
+        NetworkStartSynchronisedScene(LoseScene)    
+    elseif RewardMultiplier > 7 then
+        local BigWinScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+        RequestAnimDict(AnimDict)
+        while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+        NetworkAddPedToSynchronisedScene(PlayerPedId(), BigWinScene, AnimDict, RandomBigWin[math.random(1, #RandomBigWin)], 2.0, -1.5, 13, 16, 2.0, 0)
+        NetworkStartSynchronisedScene(BigWinScene)    
     else
-        Sounds[10]()
+        local WinScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
+        RequestAnimDict(AnimDict)
+        while not HasAnimDictLoaded(AnimDict) do Wait(0) end
+        NetworkAddPedToSynchronisedScene(PlayerPedId(), WinScene, AnimDict, RandomWin[math.random(1, #RandomWin)], 2.0, -1.5, 13, 16, 2.0, 0)
+        NetworkStartSynchronisedScene(WinScene)    
     end
     DeleteObject(BlurryReel1)
     SetEntityRotation(Reel1, ReelReward1, 0.0, SlotHeading, 2, true)
