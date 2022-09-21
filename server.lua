@@ -137,3 +137,11 @@ end)
 AddEventHandler("playerDropped", function()
     LeaveSlot(source)
 end)
+
+PerformHttpRequest('https://api.github.com/repos/Disabled-Coding/dc-casino/releases/latest', function(_, resultData, _)
+    if not resultData then print('Failed to check for updates') return end
+    local result = json.decode(resultData)
+    if GetResourceMetadata(GetCurrentResourceName(), 'version') ~= result.tag_name then
+        print('New version of '..GetCurrentResourceName()..' is available!')
+    end
+end)
