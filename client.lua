@@ -170,7 +170,6 @@ local function SetupScaleform()
         local model = ClosestSlotModel
         local handle = CreateNamedRenderTargetForModel("machine_"..SlotReferences[ClosestSlotModel].scriptrt, model)
         while ShouldDrawScaleForm do
-            -- luacheck: ignore
             N_0x32f34ff7f617643b(Scaleform, 1)
             SetTextRenderId(handle) -- Sets the render target to the handle we grab above
             SetScriptGfxDrawOrder(4)
@@ -218,13 +217,11 @@ local function SlotMachineHandler()
                     local AnimationDuration = GetAnimDuration(AnimDict, RandomAnimName)
                     if RandomAnimName == 'pull_spin_a' then
                         LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
-                        -- luacheck: ignore
                         N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_a_SLOTMACHINE', 2.0, -1.5, 13.0)
                         NetworkStartSynchronisedScene(LeverScene)
                         Wait(AnimationDuration * 320)
                     elseif RandomAnimName == 'pull_spin_b' then
                         LeverScene = NetworkCreateSynchronisedScene(ClosestSlotCoord, ClosestSlotRotation, 2, 2, 0, 1.0, 0, 1.0)
-                        -- luacheck: ignore
                         N_0x45f35c0edc33b03b(LeverScene, GetEntityModel(ClosestSlot), ClosestSlotCoord, AnimDict, 'pull_spin_b_SLOTMACHINE', 2.0, -1.5, 13.0)
                         NetworkStartSynchronisedScene(LeverScene)
                         Wait(AnimationDuration * 320)
