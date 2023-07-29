@@ -28,7 +28,7 @@ local RandomWin = { 'win_a', 'win_b', 'win_c', 'win_d', 'win_e', 'win_f', 'win_g
 local RandomLose = { 'lose_a', 'lose_b', 'lose_c', 'lose_d', 'lose_e', 'lose_f', 'lose_cruel_a', 'lose_cruel_b' }
 local RandomBigWin = { 'win_big_a', 'win_big_b', 'win_big_c' }
 local RandomEnterMessage = { 'Daring today?', 'You will lose money!', 'You have coins?' }
-local ChosenBetAmount = 50
+local ChosenBetAmount = 1
 
 local function DrawText3D(coords, text)
     SetTextScale(0.35, 0.35)
@@ -114,7 +114,7 @@ local function SlotMachineHandler()
     local RandomAnimName = RandomIdle[math.random(1, #RandomIdle)]
     NetworkAddPedToSynchronisedScene(PlayerPedId(), IdleScene, AnimDict, RandomAnimName, 2.0, -1.5, 13, 16, 2.0, 0)
     NetworkStartSynchronisedScene(IdleScene)
-    exports['qb-core']:DrawText('E - Bet One <br> R - Bet Max <br> ↵ - Spin <br> ← - Leave', 'left')
+    lib.showTextUI('E - Bet One  \n R - Bet Max  \n ↵ - Spin  \n ← - Leave')
     CreateThread(function()
         while true do
             if not IsSpinning then
@@ -128,7 +128,7 @@ local function SlotMachineHandler()
                     NetworkStopSynchronisedScene(LeaveScene)
                     EnteredSlot = false
                     ShouldDrawScaleForm = false
-                    exports['qb-core']:HideText()
+                    lib.hideTextUI()
                     CallScaleformMethod('SET_BET')
                     CallScaleformMethod('SET_LAST_WIN')
                     CallScaleformMethod('SET_MESSAGE', '')
@@ -185,7 +185,7 @@ local function SlotMachineHandler()
                 elseif IsEntityDead(PlayerPedId()) then
                     EnteredSlot = false
                     ShouldDrawScaleForm = false
-                    exports['qb-core']:HideText()
+                    lib.hideTextUI()
                     CallScaleformMethod('SET_BET')
                     CallScaleformMethod('SET_MESSAGE', '')
                     TriggerServerEvent('dc-casino:slots:server:leave')
