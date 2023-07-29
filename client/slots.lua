@@ -306,7 +306,7 @@ CreateThread(function()
         local WaitTime = 500
         if NearbySlot and not EnteredSlot then
             WaitTime = 0
-            DrawText3D(ClosestSlotCoord.x - ClosestSlotForwardX, ClosestSlotCoord.y - ClosestSlotForwardY, ClosestSlotCoord.z + 1, "~o~E~w~ - Play "..SlotReferences[ClosestSlotModel].name)
+            DrawText3D(vector3(ClosestSlotCoord.x - ClosestSlotForwardX, ClosestSlotCoord.y - ClosestSlotForwardY, ClosestSlotCoord.z + 1), "~o~E~w~ - Play "..SlotReferences[ClosestSlotModel].name)
             if IsControlJustReleased(0, 38) then
                 local netID = NetworkGetEntityIsNetworked(ClosestSlot) and NetworkGetNetworkIdFromEntity(ClosestSlot)
                 if not netID then
