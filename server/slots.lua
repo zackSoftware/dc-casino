@@ -1,3 +1,4 @@
+---@diagnostic disable: param-type-mismatch
 local QBCore = exports['qb-core']:GetCoreObject()
 local UsedSlots = {}
 local Slots = {}
@@ -49,6 +50,7 @@ RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, 
         while not DoesEntityExist(ReelEntity1) do Wait(0) end
         while not DoesEntityExist(ReelEntity2) do Wait(0) end
         while not DoesEntityExist(ReelEntity3) do Wait(0) end
+        ---@diagnostic disable-next-line: need-check-nil
         Slots[src] = {
             Slot = NetworkGetEntityFromNetworkId(netID),
             Model = SlotModel,
@@ -84,7 +86,6 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     if not SlotReferences[SlotModel].betamounts[ChosenBetAmount] then return end
     if UseCash and Player.Functions.RemoveMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
     or UseBank and Player.Functions.RemoveMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
-    -- luacheck: ignore
     or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then  else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
 
     for i = 1, #ReelRewards do
@@ -123,9 +124,9 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
         TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Spinned a casino slot for %s and won %s",
         GetPlayerName(src), Player.PlayerData.citizenid, src, SlotReferences[SlotModel].betamounts[ChosenBetAmount], RewardAmount))
         if RewardMultiplier == 0 then return end
+        ---@diagnostic disable-next-line: empty-block
         if UseCash and Player.Functions.AddMoney('cash', RewardAmount, 'Casino Slot Spin')
         or UseBank and Player.Functions.AddMoney('bank', RewardAmount, 'Casino Slot Spin')
-        -- luacheck: ignore
         or UseItem and Player.Functions.AddItem(ItemName, RewardAmount) then end
     end)
 end)
