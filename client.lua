@@ -101,18 +101,17 @@ local RandomEnterMessage = {
 }
 local ChosenBetAmount = 1
 
-local function DrawText3D(x, y, z, text)
+local function DrawText3D(coords, text)
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
-    SetTextProportional(1)
     SetTextColour(255, 255, 255, 215)
-    SetTextEntry("STRING")
+    BeginTextCommandDisplayText("STRING")
     SetTextCentre(true)
-    AddTextComponentString(text)
-    SetDrawOrigin(x,y,z, 0)
-    DrawText(0.0, 0.0)
+    AddTextComponentSubstringPlayerName(text)
+    SetDrawOrigin(coords.x, coords.y, coords.z, 0)
+    EndTextCommandDisplayText(0.0, 0.0)
     local factor = (string.len(text)) / 370
-    DrawRect(0.0, 0.0+0.0125, 0.017+ factor, 0.03, 0, 0, 0, 75)
+    DrawRect(0.0, 0.0 + 0.0125, 0.017 + factor, 0.03, 0, 0, 0, 75)
     ClearDrawOrigin()
 end
 
@@ -278,7 +277,7 @@ CreateThread(function()
 	while true do
         local PlayerCoords = GetEntityCoords(PlayerPedId())
         for i = 1, #Slots do
-            Slot = GetClosestObjectOfType(PlayerCoords, 1.2, Slots[i], true)
+            Slot = GetClosestObjectOfType(PlayerCoords.x, PlayerCoords.y, PlayerCoords.z, 1.2, Slots[i], false, false, false)
             if Slot ~= 0 then
                 SlotCoords = GetEntityCoords(Slot)
                 local CurrentDistance = #(PlayerCoords - SlotCoords)
@@ -290,9 +289,9 @@ CreateThread(function()
                     ClosestSlotForwardY = GetEntityForwardY(ClosestSlot)
                     ClosestSlotModel = GetEntityModel(ClosestSlot)
                     ClosestSlotRotation = GetEntityRotation(ClosestSlot)
-                    ReelLocation1 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), -0.115, 0.047, 0.906)
-                    ReelLocation2 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), 0.005, 0.047, 0.906)
-                    ReelLocation3 = GetObjectOffsetFromCoords(ClosestSlotCoord, GetEntityHeading(ClosestSlot), 0.125, 0.047, 0.906)
+                    ReelLocation1 = GetObjectOffsetFromCoords(ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, GetEntityHeading(ClosestSlot), -0.115, 0.047, 0.906)
+                    ReelLocation2 = GetObjectOffsetFromCoords(ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, GetEntityHeading(ClosestSlot), 0.005, 0.047, 0.906)
+                    ReelLocation3 = GetObjectOffsetFromCoords(ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, GetEntityHeading(ClosestSlot), 0.125, 0.047, 0.906)
                 end
             elseif #(PlayerCoords - ClosestSlotCoord) > 1.8 then
                 NearbySlot = false
