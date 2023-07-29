@@ -28,7 +28,7 @@ local RandomWin = { 'win_a', 'win_b', 'win_c', 'win_d', 'win_e', 'win_f', 'win_g
 local RandomLose = { 'lose_a', 'lose_b', 'lose_c', 'lose_d', 'lose_e', 'lose_f', 'lose_cruel_a', 'lose_cruel_b' }
 local RandomBigWin = { 'win_big_a', 'win_big_b', 'win_big_c' }
 local RandomEnterMessage = { 'Daring today?', 'You will lose money!', 'You have coins?' }
-local ChosenBetAmount = 1
+local ChosenBetAmount = 50
 
 local function DrawText3D(coords, text)
     SetTextScale(0.35, 0.35)
@@ -45,7 +45,7 @@ local function DrawText3D(coords, text)
 end
 
 local function StartIdleScene(CurrentAnimation)
-    Wait(GetAnimDuration(AnimDict, CurrentAnimation) * 800)
+    -- Wait(GetAnimDuration(AnimDict, CurrentAnimation) * 800)
     local IdleScene = NetworkCreateSynchronisedScene(ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, ClosestSlotRotation.x, ClosestSlotRotation.y, ClosestSlotRotation.z, 2, false, true, 1.0, 0, 1.0)
     lib.requestAnimDict(AnimDict)
     local RandomAnimName = RandomIdle[math.random(1, #RandomIdle)]
@@ -241,7 +241,7 @@ CreateThread(function()
                     SetNetworkIdCanMigrate(netID, true)
                 end
                 NetworkRequestControlOfEntity(ClosestSlot)
-                TriggerServerEvent('dc-casino:slots:server:enter', netID, ReelLocation1, ReelLocation2, ReelLocation3)
+                TriggerServerEvent('dc-casino:slots:server:enter', netID, ReelLocation1, ReelLocation2, ReelLocation3, ClosestSlotModel)
             end
         end
         Wait(WaitTime)
