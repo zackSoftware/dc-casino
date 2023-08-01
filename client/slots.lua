@@ -4,19 +4,19 @@ local ShouldDrawScaleForm = false
 local Scaleform
 local AnimDict = 'anim_casino_a@amb@casino@games@slots@male'
 local Sounds = {
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'no_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'small_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'big_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'jackpot', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'place_bet', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'place_max_bet', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'spinning', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'start_spin', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'wheel_stop_clunk', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'wheel_stop_on_prize', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'welcome_stinger', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'spin_wheel', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
-    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'spin_wheel_win', ClosestSlotCoord, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'no_win', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'small_win', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'big_win', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'jackpot', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'place_bet', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'place_max_bet', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'spinning', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'start_spin', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'wheel_stop_clunk', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'wheel_stop_on_prize', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'welcome_stinger', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'spin_wheel', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end,
+    function() local SoundId = GetSoundId() PlaySoundFromCoord(SoundId, 'spin_wheel_win', ClosestSlotCoord.x, ClosestSlotCoord.y, ClosestSlotCoord.z, SlotReferences[ClosestSlotModel].sound, false, 20, false) ReleaseSoundId(SoundId) end
 }
 local Slots = { 2362925439, 2775323096, 3863977906, 654385216, 161343630, 1096374064, 207578973, 3807744938 }
 local RandomEnter = { 'enter_left', 'enter_right', 'enter_left_short', 'enter_right_short' }
@@ -30,7 +30,7 @@ local RandomBigWin = { 'win_big_a', 'win_big_b', 'win_big_c' }
 local RandomEnterMessage = { 'Daring today?', 'You will lose money!', 'You have coins?' }
 local ChosenBetAmount = 1
 
-local function DrawText3D(coords, text)
+function DrawText3D(coords, text)
     SetTextScale(0.35, 0.35)
     SetTextFont(4)
     SetTextColour(255, 255, 255, 215)

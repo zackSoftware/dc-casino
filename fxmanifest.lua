@@ -8,13 +8,15 @@ repository 'https://github.com/Disabled-Coding/dc-casino'
 
 shared_scripts {
     '@ox_lib/init.lua',
-    'config.lua'
+    'configs/*.lua'
 }
 client_scripts {
-    'client/slots.lua'
+    'client/slots.lua',
+    'client/roulette.lua'
 }
 server_scripts {
-    'server/slots.lua'
+    'server/slots.lua',
+    'server/roulette.lua',
 }
 
 lua54 'yes'
