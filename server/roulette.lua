@@ -1,6 +1,7 @@
 ---@diagnostic disable: param-type-mismatch
 
 local takenChair = {}
+
 RegisterNetEvent('dc-casino:roulette:server:syncChairs', function(type, chairCoords)
     local playerCoords = GetEntityCoords(GetPlayerPed(source))
 

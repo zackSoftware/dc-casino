@@ -1,4 +1,4 @@
-local rouletteEntities, roulettePeds = {}, {}
+local rouletteEntities, roulettePeds, highlightEntities = {}, {}, {}
 local pedComp = SetPedComponentVariation
 local randomPedClothes = {
     function(ped) pedComp(ped, 0, 4, 0, 0) pedComp(ped, 1, 0, 0, 0) pedComp(ped, 2, 4, 0, 0) pedComp(ped, 3, 2, 1, 0) pedComp(ped, 4, 1, 0, 0) pedComp(ped, 6, 1, 0, 0) pedComp(ped, 7, 1, 0, 0) pedComp(ped, 8, 2, 0, 0) pedComp(ped, 10, 0, 0, 0) pedComp(ped, 11, 0, 0, 0) SetPedVoiceGroup(ped, `S_F_Y_Casino_01_LATINA_01`) end,
@@ -73,18 +73,19 @@ end
 
 AddEventHandler('onResourceStop', deleteRouletteTables)
 
-local sittingInAChair = false
+local sittingInAChair, chairInfo, rouletteInfo, chosenBets = false, {}, {}, {}
+local randomExitScene = { 'sit_exit_left' }
 
 local function leaveChair()
-    TriggerServerEvent('dc-casino:roulette:server:syncChairs', 'leave', sittingInAChair)
     sittingInAChair = false
+    TriggerServerEvent('dc-casino:roulette:server:syncChairs', 'leave', chairInfo.coords)
 end
 
 local function checkChair()
     CreateThread(function()
         while sittingInAChair do
             local playerCoords = GetEntityCoords(cache.ped)
-            if #(playerCoords - sittingInAChair) >= 5 then
+            if #(playerCoords - chairInfo.coords) >= 5 then
                 leaveChair()
             end
             Wait(1000)
@@ -92,8 +93,115 @@ local function checkChair()
     end)
 end
 
+local function checkCamera()
+    CreateThread(function()
+        local bettingCoordX, bettingCoordY = 0.4 * Cos(rouletteInfo.coords.w) - 0.0 * Sin(rouletteInfo.coords.w), 0.4 * Sin(rouletteInfo.coords.w) + 0.0 * Cos(rouletteInfo.coords.w)
+        local bettingCamera = CreateCamWithParams('DEFAULT_SCRIPTED_CAMERA', rouletteInfo.coords.x + bettingCoordX, rouletteInfo.coords.y + bettingCoordY, rouletteInfo.coords.z + 2.0, -90.0, 0.0, rouletteInfo.rotation.z, 70.0, false, 2)
+        local rouletteCam = CreateCamWithParams('DEFAULT_SCRIPTED_CAMERA', rouletteInfo.coords.x, rouletteInfo.coords.y, rouletteInfo.coords.z + 2.4, 0.0, 0.0, 0.0, 40.0, false, 2)
+        local rouletteWheelCoords = GetEntityBonePosition_2(rouletteInfo.entity, GetEntityBoneIndexByName(rouletteInfo.entity, 'Roulette_Wheel'))
+        PointCamAtCoord(rouletteCam, rouletteWheelCoords.x, rouletteWheelCoords.y, rouletteWheelCoords.z)
+        local function turnOffCams() RenderScriptCams(false, false, 0, true, false) SetCamActive(bettingCamera, false) SetCamActive(rouletteCam, false) end
+        while sittingInAChair do
+            local cameraMode = GetFollowPedCamViewMode()
+            if cameraMode == 0 then
+                N_0x79c0e43eb9b944e2('CASINO_ROULETTE_CAMERA')
+            elseif cameraMode == 1 then
+                if not IsCamActive(bettingCamera) then
+                    turnOffCams()
+                    SetCamActive(bettingCamera, true)
+                    RenderScriptCams(true, true, 2000, true, false)
+                end
+            elseif cameraMode == 2 then
+                if not IsCamActive(rouletteCam) then
+                    turnOffCams()
+                    SetCamActive(rouletteCam, true)
+                    RenderScriptCams(true, false, 0, true, false)
+                end
+            elseif cameraMode == 4 then
+                if IsCamActive(rouletteCam) or IsCamActive(bettingCamera) then
+                    turnOffCams()
+                end
+            end
+            Wait(0)
+        end
+        turnOffCams()
+    end)
+end
+
+local function getClosestBettingPoint(mouseX, mouseY)
+    local closestOption = 1
+    for i = 1, #BetPositions do
+        if #(vec2(mouseX, mouseY) - vec2(BetPositions[i].coords.x, BetPositions[i].coords.y)) < #(vec2(mouseX, mouseY) - vec2(BetPositions[closestOption].coords.x, BetPositions[closestOption].coords.y)) then
+            closestOption = i
+        end
+    end
+    return BetPositions[closestOption].options
+end
+
+local function deleteHighlights()
+    for i = 1, #highlightEntities do
+        if DoesEntityExist(highlightEntities[i]) then DeleteEntity(highlightEntities[i]) end
+    end
+end
+
+AddEventHandler('onResourceStop', deleteHighlights)
+
+local function showHighlights(bettingOptions)
+    deleteHighlights()
+    lib.requestModel(`vw_prop_vw_marker_01a`)
+    lib.requestModel(`vw_prop_vw_marker_02a`)
+    for i = 1, #bettingOptions do
+        local model = bettingOptions[i] == 37 and `vw_prop_vw_marker_01a` or bettingOptions[i] == 38 and `vw_prop_vw_marker_01a` or `vw_prop_vw_marker_02a`
+        local offsetX = HighlightPositions[bettingOptions[i]].x * Cos(rouletteInfo.coords.w) - HighlightPositions[bettingOptions[i]].y * Sin(rouletteInfo.coords.w)
+        local offsetY = HighlightPositions[bettingOptions[i]].x * Sin(rouletteInfo.coords.w) + HighlightPositions[bettingOptions[i]].y * Cos(rouletteInfo.coords.w)
+        highlightEntities[i] = CreateObject(model, rouletteInfo.coords.x + offsetX, rouletteInfo.coords.y + offsetY, rouletteInfo.coords.z + HighlightPositions[i].z, false, true, false)
+        SetEntityHeading(highlightEntities[i], rouletteInfo.coords.w)
+        SetEntityDynamic(highlightEntities[i], false)
+        SetEntityHasGravity(highlightEntities[i], false)
+        SetEntityCompletelyDisableCollision(highlightEntities[i], false, false)
+        SetEntityAlpha(highlightEntities[i], 200, true)
+        SetObjectTextureVariation(highlightEntities[i], 1)
+    end
+end
+
+local function highlightBets()
+    CreateThread(function()
+        local currentBets = {}
+        while sittingInAChair do
+            if GetFollowPedCamViewMode() == 1 then
+                SetMouseCursorActiveThisFrame()
+                local mouseX, mouseY = GetControlNormal(0, 239), GetControlNormal(0, 240)
+                local getBets = getClosestBettingPoint(mouseX, mouseY)
+                if getBets ~= currentBets then
+                    currentBets = getBets
+                    showHighlights(currentBets)
+                end
+                Wait(0)
+            else
+                Wait(500)
+            end
+        end
+        deleteHighlights()
+    end)
+end
+
 local function startRouletteHandler()
     checkChair()
+    checkCamera()
+    highlightBets()
+    CreateThread(function()
+        while sittingInAChair do
+            if IsControlJustReleased(0, 202) then
+                local exitScene = NetworkCreateSynchronisedScene(chairInfo.coords.x, chairInfo.coords.y, chairInfo.coords.z, chairInfo.rotation.x, chairInfo.rotation.y, chairInfo.rotation.z, 2, true, false, 1065353216, 13, 1.0)
+                NetworkAddPedToSynchronisedScene(cache.ped, exitScene, 'anim_casino_b@amb@casino@games@shared@player@', randomExitScene[math.random(1, #randomExitScene)], 2.0, -2.0, 13, 16, 2.0, 0)
+                NetworkStartSynchronisedScene(exitScene)
+                leaveChair()
+                Wait(GetAnimDuration('anim_casino_b@amb@casino@games@shared@player@', 'sit_exit_left') * 600)
+                NetworkStopSynchronisedScene(exitScene)
+            end
+            Wait(0)
+        end
+    end)
 end
 
 local takenChairs = {}
@@ -129,11 +237,14 @@ local function enterClosestChair(rouletteIndex)
     for i = 1, #rouletteChairsOrdered do
         if #(playerCoords - rouletteChairsOrdered[i].coords) <= 1.5 then
             if not isChairTaken(rouletteChairsOrdered[i].coords) and not sittingInAChair then
-                sittingInAChair = rouletteChairsOrdered[i].coords
+                sittingInAChair = true
+                chairInfo = { coords = rouletteChairsOrdered[i].coords, rotation = rouletteChairsOrdered[i].rotation }
+                rouletteInfo = { coords = RouletteLocations[rouletteIndex].coords, rotation = GetEntityRotation(rouletteEntities[rouletteIndex]), entity = rouletteEntities[rouletteIndex] }
                 local enterScene = NetworkCreateSynchronisedScene(rouletteChairsOrdered[i].coords.x, rouletteChairsOrdered[i].coords.y, rouletteChairsOrdered[i].coords.z, rouletteChairsOrdered[i].rotation.x, rouletteChairsOrdered[i].rotation.y, rouletteChairsOrdered[i].rotation.z, 2, true, false, 1065353216, 13, 1.0)
                 NetworkAddPedToSynchronisedScene(cache.ped, enterScene, 'anim_casino_b@amb@casino@games@shared@player@', randomEnterScene[math.random(1, #randomEnterScene)], 2.0, -2.0, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(enterScene)
                 TriggerServerEvent('dc-casino:roulette:server:syncChairs', 'enter', rouletteChairsOrdered[i].coords)
+                TriggerServerEvent('dc-casino:roulette:server:enterTable', rouletteIndex)
                 startRouletteHandler()
             end
         end
