@@ -90,7 +90,7 @@ RegisterNetEvent('dc-casino:roulette:server:enterTable', function(rouletteIndex)
     if not takenChair[source] then return end
     if #(playerCoords - RouletteLocations[rouletteIndex].coords.xyz) >= 5 then return end
 
-    if activeTables[rouletteIndex] then
+    if activeTables[rouletteIndex] and activeTables[rouletteIndex][1] then
         activeTables[rouletteIndex][#activeTables[rouletteIndex]+1] = source
     else
         activeTables[rouletteIndex] = { source }
