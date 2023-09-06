@@ -372,6 +372,8 @@ RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, 
         lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@table')
         PlayEntityAnim(ball, 'intro_ball', 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
         PlayEntityAnim(rouletteEntities[rouletteIndex], 'intro_wheel', 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        while GetEntityAnimCurrentTime(roulettePeds[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@dealer_female', 'no_more_bets') < 0.99 do Wait(0) end
+        idleScene(roulettePeds[rouletteIndex])
         while GetEntityAnimCurrentTime(rouletteEntities[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@table', 'intro_wheel') < 0.99 do Wait(0) end
         SetEntityCoords(ball, coords.x, coords.y, coords.z, false, false, false, false)
         local rot = GetEntityBoneRotationLocal(rouletteEntities[rouletteIndex], GetEntityBoneIndexByName(rouletteEntities[rouletteIndex], 'Roulette_Wheel'))
