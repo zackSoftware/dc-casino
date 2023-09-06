@@ -35,7 +35,7 @@ local function startTableHandler(tableIndex)
             if not checkActivePlayers(tableIndex) then break end
 
             for i = 1, #activeTables[tableIndex] do
-                TriggerClientEvent('dc-casino:roulette:client:startBetting', activeTables[tableIndex][i])
+                TriggerClientEvent('dc-casino:roulette:client:startBetting', activeTables[tableIndex][i], tableIndex)
             end
 
             Wait(30000)

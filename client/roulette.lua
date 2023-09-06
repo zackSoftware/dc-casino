@@ -318,6 +318,7 @@ local function enterClosestChair(rouletteIndex)
                 NetworkAddPedToSynchronisedScene(cache.ped, enterScene, 'anim_casino_b@amb@casino@games@shared@player@', randomEnterScene[math.random(1, #randomEnterScene)], 2.0, -2.0, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(enterScene)
                 spawnHighlights()
+                PlayPedAmbientSpeechNative(roulettePeds[rouletteIndex], 'minigame_dealer_greet', 'SPEECH_PARAMS_STANDARD')
                 TriggerServerEvent('dc-casino:roulette:server:syncChairs', 'enter', rouletteChairsOrdered[i].coords)
                 TriggerServerEvent('dc-casino:roulette:server:enterTable', rouletteIndex)
                 startRouletteHandler()
@@ -353,7 +354,8 @@ RegisterNetEvent('dc-casino:roulette:client:syncChairs', function(type, chairCoo
     end
 end)
 
-RegisterNetEvent('dc-casino:roulette:client:startBetting', function()
+RegisterNetEvent('dc-casino:roulette:client:startBetting', function(rouletteIndex)
+    PlayPedAmbientSpeechNative(roulettePeds[rouletteIndex], 'MINIGAME_DEALER_PLACE_BET', 'SPEECH_PARAMS_STANDARD')
     allBets = {}
     bettingTimer = 30
     while bettingTimer >= 1 do
@@ -371,6 +373,7 @@ RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, 
     if DoesEntityExist(roulettePeds[rouletteIndex]) and DoesEntityExist(rouletteEntities[rouletteIndex]) then
         lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@dealer_female')
         TaskPlayAnim(roulettePeds[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@dealer_female', 'no_more_bets', 1.0, 1.0, -1, 0, 0.0, false, false, false)
+        PlayPedAmbientSpeechNative(roulettePeds[rouletteIndex], 'MINIGAME_DEALER_CLOSED_BETS', 'SPEECH_PARAMS_STANDARD')
         Wait(GetAnimDuration('anim_casino_b@amb@casino@games@roulette@dealer_female', 'no_more_bets') * 1000)
         TaskPlayAnim(roulettePeds[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@dealer_female', 'spin_wheel', 1.0, 1.0, -1, 0, 0.0, false, false, false)
         lib.requestModel(`vw_prop_roulette_ball`)
@@ -389,7 +392,9 @@ RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, 
         SetEntityRotation(ball, 0.0, 0.0, rot.z + GetEntityHeading(rouletteEntities[rouletteIndex]), 2, false)
         PlayEntityAnim(ball, string.format('exit_%s_ball', roulettePositions[betResult]), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
         PlayEntityAnim(rouletteEntities[rouletteIndex], string.format('exit_%s_wheel', roulettePositions[betResult]), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
-        Wait(12000)
+        Wait(7500)
+        PlayPedAmbientSpeechNative(roulettePeds[rouletteIndex], string.format('minigame_roulette_ball_%s', betResult), 'SPEECH_PARAMS_STANDARD')
+        Wait(4000)
         DeleteEntity(ball)
     end
 end)
