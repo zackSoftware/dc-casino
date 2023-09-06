@@ -10,11 +10,10 @@ RegisterNetEvent('dc-casino:roulette:server:syncChairs', function(type, chairCoo
     if type == 'enter' then
         if takenChair[source] then
             TriggerClientEvent('dc-casino:roulette:client:syncChairs', -1, 'leave', takenChair[source])
-            table.remove(takenChair, source)
         end
         takenChair[source] = chairCoords
     elseif type == 'leave' then
-        table.remove(takenChair, source)
+        takenChair[source] = nil
     end
     TriggerClientEvent('dc-casino:roulette:client:syncChairs', -1, type, chairCoords)
 end)
