@@ -44,6 +44,7 @@ local function startTableHandler(tableIndex)
 
             local randomResult = math.random(1, 38)
             TriggerClientEvent('dc-casino:roulette:client:startRoulette', -1, randomResult, tableIndex)
+            lib.callback.await('dc-casino:roulette:callback:checkObject', activeTables[tableIndex][1])
 
             local playerBets = {}
 

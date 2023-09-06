@@ -346,7 +346,7 @@ end)
 RegisterNetEvent('dc-casino:roulette:client:startBetting', function()
     allBets = {}
     bettingTimer = 30
-    while bettingTimer > 1 do
+    while bettingTimer >= 1 do
         Wait(1000)
         bettingTimer = bettingTimer - 1
     end
@@ -356,7 +356,7 @@ lib.callback.register('dc-casino:roulette:callback:getClientInput', function()
     return allBets
 end)
 
-local roulettePositions = { 30, 11, 26, 7, 22, 3, 18, 37, 14, 33, 17, 36, 29, 10, 25, 6, 21, 2, 38, 19, 4, 23, 8, 27, 34, 15, 32, 13, 35, 16, 1, 20, 5, 24, 9, 28, 12, 31 }
+local roulettePositions, ball = { 30, 11, 26, 7, 22, 3, 18, 37, 14, 33, 17, 36, 29, 10, 25, 6, 21, 2, 38, 19, 4, 23, 8, 27, 34, 15, 32, 13, 35, 16, 1, 20, 5, 24, 9, 28, 12, 31 }, 0
 RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, rouletteIndex)
     if DoesEntityExist(roulettePeds[rouletteIndex]) and DoesEntityExist(rouletteEntities[rouletteIndex]) then
         lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@dealer_female')
@@ -365,7 +365,8 @@ RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, 
         TaskPlayAnim(roulettePeds[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@dealer_female', 'spin_wheel', 1.0, 1.0, -1, 0, 0.0, false, false, false)
         lib.requestModel(`vw_prop_roulette_ball`)
         local coords = GetEntityBonePosition_2(rouletteEntities[rouletteIndex], GetEntityBoneIndexByName(rouletteEntities[rouletteIndex], 'Roulette_Wheel'))
-        local ball = CreateObjectNoOffset(`vw_prop_roulette_ball`, coords.x, coords.y, coords.z, false, false, false)
+        ball = CreateObjectNoOffset(`vw_prop_roulette_ball`, coords.x, coords.y, coords.z, false, false, false)
+        SetModelAsNoLongerNeeded(`vw_prop_roulette_ball`)
         SetEntityHeading(ball, GetEntityHeading(rouletteEntities[rouletteIndex]))
         lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@table')
         PlayEntityAnim(ball, 'intro_ball', 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
@@ -378,6 +379,11 @@ RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, 
         PlayEntityAnim(rouletteEntities[rouletteIndex], string.format('exit_%s_wheel', roulettePositions[betResult]), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
         Wait(12000)
         DeleteEntity(ball)
-        SetModelAsNoLongerNeeded(`vw_prop_roulette_ball`)
     end
+end)
+
+lib.callback.register('dc-casino:roulette:callback:checkObject', function()
+    Wait(GetAnimDuration('anim_casino_b@amb@casino@games@roulette@dealer_female', 'no_more_bets') * 1100)
+    while DoesEntityExist(ball) do Wait(0) end
+    return true
 end)
