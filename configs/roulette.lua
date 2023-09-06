@@ -1,10 +1,21 @@
 RouletteLocations = {
-    { coords = vector4(1144.8137, 268.2634, -52.8409, -135.0), spawned = false},
-    { coords = vector4(1150.3547, 262.7224, -52.8409, 45.0), spawned = false},
-    { coords = vector4(1133.9583, 262.1071, -52.0409, 135.0), spawned = false},
-    { coords = vector4(1129.5952, 267.2637, -52.0409, -45.0), spawned = false},
-    { coords = vector4(1144.6178, 252.2411, -52.0409, -45.0), spawned = false},
-    { coords = vector4(1148.9808, 247.0846, -52.0409, 135.0), spawned = false},
+    { coords = vector4(1144.8137, 268.2634, -52.8409, -135.0), spawned = false, pedOutfit = 1, maxBets = 20, maxAmount = 200000 },
+    { coords = vector4(1150.3547, 262.7224, -52.8409, 45.0), spawned = false, pedOutfit = 2, maxBets = 20, maxAmount = 200000 },
+    { coords = vector4(1133.9583, 262.1071, -52.0409, 135.0), spawned = false, pedOutfit = 3, maxBets = 20, maxAmount = 200000 },
+    { coords = vector4(1129.5952, 267.2637, -52.0409, -45.0), spawned = false, pedOutfit = 4, maxBets = 20, maxAmount = 200000 },
+    { coords = vector4(1144.6178, 252.2411, -52.0409, -45.0), spawned = false, pedOutfit = 5, maxBets = 20, maxAmount = 200000 },
+    { coords = vector4(1148.9808, 247.0846, -52.0409, 135.0), spawned = false, pedOutfit = 6, maxBets = 20, maxAmount = 200000 },
+}
+
+RouletteRewards = {
+    [1] = 35,
+    [2] = 17,
+    [3] = 11,
+    [4] = 8,
+    [5] = 6,
+    [6] = 5,
+    [12] = 2,
+    [18] = 1
 }
 
 -- Don't touch this

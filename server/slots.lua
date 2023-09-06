@@ -1,5 +1,5 @@
 ---@diagnostic disable: param-type-mismatch
-local QBCore = exports['qb-core']:GetCoreObject()
+QBCore = exports['qb-core']:GetCoreObject()
 local UsedSlots = {}
 local Slots = {}
 
@@ -86,7 +86,7 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     if not SlotReferences[SlotModel].betamounts[ChosenBetAmount] then return end
     if UseCash and Player.Functions.RemoveMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
     or UseBank and Player.Functions.RemoveMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
-    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then  else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
+    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
 
     for i = 1, #ReelRewards do
         if SlotReferences[SlotModel].misschance > math.random(1, 100) then ReelRewards[i] = ReelRewards[i] + math.random(4, 6) / 10 end

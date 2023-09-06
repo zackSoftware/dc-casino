@@ -11,6 +11,12 @@ local randomPedClothes = {
     function(ped) pedComp(ped, 0, 2, 1, 0) pedComp(ped, 1, 0, 0, 0) pedComp(ped, 2, 2, 1, 0) pedComp(ped, 3, 3, 3, 0) pedComp(ped, 4, 1, 0, 0) pedComp(ped, 6, 1, 0, 0) pedComp(ped, 7, 2, 0, 0) pedComp(ped, 8, 3, 0, 0) pedComp(ped, 10, 0, 0, 0) pedComp(ped, 11, 0, 0, 0) SetPedVoiceGroup(ped, `S_F_Y_Casino_01_LATINA_02`) end,
 }
 
+local randomIdleAnim = { 'idle_var01', 'idle_var02', 'idle_var03', 'idle_var04', 'idle_var05', 'idle_var06' }
+local function idleScene(entity)
+    lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@dealer_female')
+    TaskPlayAnim(entity, 'anim_casino_b@amb@casino@games@roulette@dealer_female', randomIdleAnim[math.random(1, #randomIdleAnim)], 1.0, 1.0, -1, 1, 0.0, false, false, false)
+end
+
 local function setupRoulette(index)
     rouletteEntities[index] = CreateObject(`vw_prop_casino_roulette_01b`, RouletteLocations[index].coords.x, RouletteLocations[index].coords.y, RouletteLocations[index].coords.z, false, true, false)
     SetEntityHeading(rouletteEntities[index], RouletteLocations[index].coords.w)
@@ -30,7 +36,8 @@ local function setupRoulette(index)
     SetPedCanRagdollFromPlayerImpact(roulettePeds[index], false)
     SetPedConfigFlag(roulettePeds[index], 208, true)
     SetPedDefaultComponentVariation(roulettePeds[index])
-    randomPedClothes[math.random(1, #randomPedClothes)](roulettePeds[index])
+    randomPedClothes[RouletteLocations[index].pedOutfit](roulettePeds[index])
+    idleScene(roulettePeds[index])
 end
 
 local function deleteRouletteTable(index)
@@ -146,14 +153,14 @@ end
 
 AddEventHandler('onResourceStop', deleteHighlights)
 
-local function showHighlights(bettingOptions)
+local function showHighlights()
     deleteHighlights()
     lib.requestModel(`vw_prop_vw_marker_01a`)
     lib.requestModel(`vw_prop_vw_marker_02a`)
-    for i = 1, #bettingOptions do
-        local model = bettingOptions[i] == 37 and `vw_prop_vw_marker_01a` or bettingOptions[i] == 38 and `vw_prop_vw_marker_01a` or `vw_prop_vw_marker_02a`
-        local offsetX = HighlightPositions[bettingOptions[i]].x * Cos(rouletteInfo.coords.w) - HighlightPositions[bettingOptions[i]].y * Sin(rouletteInfo.coords.w)
-        local offsetY = HighlightPositions[bettingOptions[i]].x * Sin(rouletteInfo.coords.w) + HighlightPositions[bettingOptions[i]].y * Cos(rouletteInfo.coords.w)
+    for i = 1, #chosenBets do
+        local model = chosenBets[i] == 37 and `vw_prop_vw_marker_01a` or chosenBets[i] == 38 and `vw_prop_vw_marker_01a` or `vw_prop_vw_marker_02a`
+        local offsetX = HighlightPositions[chosenBets[i]].x * Cos(rouletteInfo.coords.w) - HighlightPositions[chosenBets[i]].y * Sin(rouletteInfo.coords.w)
+        local offsetY = HighlightPositions[chosenBets[i]].x * Sin(rouletteInfo.coords.w) + HighlightPositions[chosenBets[i]].y * Cos(rouletteInfo.coords.w)
         highlightEntities[i] = CreateObject(model, rouletteInfo.coords.x + offsetX, rouletteInfo.coords.y + offsetY, rouletteInfo.coords.z + HighlightPositions[i].z, false, true, false)
         SetEntityHeading(highlightEntities[i], rouletteInfo.coords.w)
         SetEntityDynamic(highlightEntities[i], false)
@@ -162,19 +169,20 @@ local function showHighlights(bettingOptions)
         SetEntityAlpha(highlightEntities[i], 200, true)
         SetObjectTextureVariation(highlightEntities[i], 1)
     end
+    SetModelAsNoLongerNeeded(`vw_prop_vw_marker_01a`)
+    SetModelAsNoLongerNeeded(`vw_prop_vw_marker_02a`)
 end
 
 local function highlightBets()
     CreateThread(function()
-        local currentBets = {}
         while sittingInAChair do
             if GetFollowPedCamViewMode() == 1 then
                 SetMouseCursorActiveThisFrame()
                 local mouseX, mouseY = GetControlNormal(0, 239), GetControlNormal(0, 240)
                 local getBets = getClosestBettingPoint(mouseX, mouseY)
-                if getBets ~= currentBets then
-                    currentBets = getBets
-                    showHighlights(currentBets)
+                if getBets ~= chosenBets then
+                    chosenBets = getBets
+                    showHighlights()
                 end
                 Wait(0)
             else
@@ -185,10 +193,28 @@ local function highlightBets()
     end)
 end
 
-local function startRouletteHandler()
-    checkChair()
-    checkCamera()
-    highlightBets()
+local currentBet, possibleBets, allBets = 1, { 10, 50, 100, 500, 1000, 5000, 10000 }, {}
+
+local function addBet()
+    for i = 1, #allBets do
+        if allBets[i].bets == chosenBets then
+            allBets[i].amount = allBets[i].amount + possibleBets[currentBet]
+            return
+        end
+    end
+    allBets[#allBets + 1] = { bets = chosenBets, amount = possibleBets[currentBet] }
+end
+
+local function removeBet()
+    for i = 1, #allBets do
+        if allBets[i]?.bets == chosenBets then
+            allBets[i].amount = allBets[i].amount - possibleBets[currentBet]
+            if allBets[i].amount < 0 then table.remove(allBets, i) end
+        end
+    end
+end
+
+local function checkInputs()
     CreateThread(function()
         while sittingInAChair do
             if IsControlJustReleased(0, 202) then
@@ -196,12 +222,51 @@ local function startRouletteHandler()
                 NetworkAddPedToSynchronisedScene(cache.ped, exitScene, 'anim_casino_b@amb@casino@games@shared@player@', randomExitScene[math.random(1, #randomExitScene)], 2.0, -2.0, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(exitScene)
                 leaveChair()
+                lib.hideTextUI()
                 Wait(GetAnimDuration('anim_casino_b@amb@casino@games@shared@player@', 'sit_exit_left') * 600)
                 NetworkStopSynchronisedScene(exitScene)
+            elseif IsControlJustReleased(0, 188) then
+                currentBet = currentBet + 1
+                if currentBet > #possibleBets then currentBet = #possibleBets end
+            elseif IsControlJustReleased(0, 187) then
+                currentBet = currentBet - 1
+                if currentBet < 1 then currentBet = 1 end
+            elseif IsControlJustReleased(0, 223) and GetFollowPedCamViewMode() == 1 then
+                addBet()
+            elseif IsControlJustReleased(0, 222) and GetFollowPedCamViewMode() == 1 then
+                removeBet()
             end
             Wait(0)
         end
     end)
+end
+
+local bettingTimer = 0
+
+local function updateText()
+    CreateThread(function()
+        lib.showTextUI(string.format('↑ - Increase bet  \n ↓ - Decrease bet  \n ⌫ - Leave  \n Current bet: %s', possibleBets[currentBet]))
+        local oldBet, oldTimer = possibleBets[currentBet], bettingTimer
+        while sittingInAChair do
+            if oldBet ~= possibleBets[currentBet] or oldTimer ~= bettingTimer then
+                oldBet, oldTimer = possibleBets[currentBet], bettingTimer
+                if bettingTimer > 0 then
+                    lib.showTextUI(string.format('↑ - Increase bet  \n ↓ - Decrease bet  \n ⌫ - Leave  \n Current bet: %s  \n Betting time: %s', possibleBets[currentBet], bettingTimer))
+                else
+                    lib.showTextUI(string.format('↑ - Increase bet  \n ↓ - Decrease bet  \n ⌫ - Leave  \n Current bet: %s', possibleBets[currentBet]))
+                end
+            end
+            Wait(0)
+        end
+    end)
+end
+
+local function startRouletteHandler()
+    checkChair()
+    checkCamera()
+    highlightBets()
+    checkInputs()
+    updateText()
 end
 
 local takenChairs = {}
@@ -275,5 +340,43 @@ RegisterNetEvent('dc-casino:roulette:client:syncChairs', function(type, chairCoo
     elseif type == 'leave' then
         local chairIndex = isChairTaken(chairCoords)
         if chairIndex then table.remove(takenChairs, chairIndex) end
+    end
+end)
+
+RegisterNetEvent('dc-casino:roulette:client:startBetting', function()
+    allBets = {}
+    bettingTimer = 30
+    while bettingTimer > 1 do
+        Wait(1000)
+        bettingTimer = bettingTimer - 1
+    end
+end)
+
+lib.callback.register('dc-casino:roulette:callback:getClientInput', function()
+    return allBets
+end)
+
+RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, rouletteIndex)
+    if DoesEntityExist(roulettePeds[rouletteIndex]) and DoesEntityExist(rouletteEntities[rouletteIndex]) then
+        lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@dealer_female')
+        TaskPlayAnim(roulettePeds[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@dealer_female', 'no_more_bets', 1.0, 1.0, -1, 0, 0.0, false, false, false)
+        Wait(GetAnimDuration('anim_casino_b@amb@casino@games@roulette@dealer_female', 'no_more_bets') * 1000)
+        TaskPlayAnim(roulettePeds[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@dealer_female', 'spin_wheel', 1.0, 1.0, -1, 0, 0.0, false, false, false)
+        lib.requestModel(`vw_prop_roulette_ball`)
+        local coords = GetEntityBonePosition_2(rouletteEntities[rouletteIndex], GetEntityBoneIndexByName(rouletteEntities[rouletteIndex], 'Roulette_Wheel'))
+        local ball = CreateObjectNoOffset(`vw_prop_roulette_ball`, coords.x, coords.y, coords.z, false, false, false)
+        SetEntityHeading(ball, GetEntityHeading(rouletteEntities[rouletteIndex]))
+        lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@table')
+        PlayEntityAnim(ball, 'intro_ball', 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        PlayEntityAnim(rouletteEntities[rouletteIndex], 'intro_wheel', 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        while GetEntityAnimCurrentTime(rouletteEntities[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@table', 'intro_wheel') < 0.99 do Wait(0) end
+        SetEntityCoords(ball, coords.x, coords.y, coords.z, false, false, false, false)
+        local rot = GetEntityBoneRotation(rouletteEntities[rouletteIndex], GetEntityBoneIndexByName(rouletteEntities[rouletteIndex], 'Roulette_Wheel'))
+        SetEntityRotation(ball, 0.0, 0.0, rot.z - 105, 2, false)
+        PlayEntityAnim(ball, string.format('exit_%s_ball', betResult), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        PlayEntityAnim(rouletteEntities[rouletteIndex], string.format('exit_%s_wheel', betResult), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        Wait(12000)
+        DeleteEntity(ball)
+        SetModelAsNoLongerNeeded(`vw_prop_roulette_ball`)
     end
 end)
