@@ -186,6 +186,7 @@ local function highlightBets()
                 end
                 Wait(0)
             else
+                deleteHighlights()
                 Wait(500)
             end
         end
