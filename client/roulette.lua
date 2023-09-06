@@ -100,6 +100,12 @@ local function checkChair()
     end)
 end
 
+local function deleteHighlights()
+    for i = 1, #highlightEntities do
+        if DoesEntityExist(highlightEntities[i]) then DeleteEntity(highlightEntities[i]) end
+    end
+end
+
 local function checkCamera()
     CreateThread(function()
         local bettingCoordX, bettingCoordY = 0.4 * Cos(rouletteInfo.coords.w) - 0.0 * Sin(rouletteInfo.coords.w), 0.4 * Sin(rouletteInfo.coords.w) + 0.0 * Cos(rouletteInfo.coords.w)
@@ -116,10 +122,11 @@ local function checkCamera()
                 if not IsCamActive(bettingCamera) then
                     turnOffCams()
                     SetCamActive(bettingCamera, true)
-                    RenderScriptCams(true, true, 2000, true, false)
+                    RenderScriptCams(true, false, 0, true, false)
                 end
             elseif cameraMode == 2 then
                 if not IsCamActive(rouletteCam) then
+                    deleteHighlights()
                     turnOffCams()
                     SetCamActive(rouletteCam, true)
                     RenderScriptCams(true, false, 0, true, false)
@@ -143,12 +150,6 @@ local function getClosestBettingPoint(mouseX, mouseY)
         end
     end
     return BetPositions[closestOption].options
-end
-
-local function deleteHighlights()
-    for i = 1, #highlightEntities do
-        if DoesEntityExist(highlightEntities[i]) then DeleteEntity(highlightEntities[i]) end
-    end
 end
 
 AddEventHandler('onResourceStop', deleteHighlights)
@@ -186,8 +187,7 @@ local function highlightBets()
                 end
                 Wait(0)
             else
-                deleteHighlights()
-                Wait(500)
+                Wait(100)
             end
         end
         deleteHighlights()
