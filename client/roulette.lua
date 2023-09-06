@@ -356,6 +356,7 @@ lib.callback.register('dc-casino:roulette:callback:getClientInput', function()
     return allBets
 end)
 
+local roulettePositions = { 30, 11, 26, 7, 22, 3, 18, 37, 14, 33, 17, 36, 29, 10, 25, 6, 21, 2, 38, 19, 4, 23, 8, 27, 34, 15, 32, 13, 35, 16, 1, 20, 5, 24, 9, 28, 12, 31 }
 RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, rouletteIndex)
     if DoesEntityExist(roulettePeds[rouletteIndex]) and DoesEntityExist(rouletteEntities[rouletteIndex]) then
         lib.requestAnimDict('anim_casino_b@amb@casino@games@roulette@dealer_female')
@@ -371,10 +372,10 @@ RegisterNetEvent('dc-casino:roulette:client:startRoulette', function(betResult, 
         PlayEntityAnim(rouletteEntities[rouletteIndex], 'intro_wheel', 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
         while GetEntityAnimCurrentTime(rouletteEntities[rouletteIndex], 'anim_casino_b@amb@casino@games@roulette@table', 'intro_wheel') < 0.99 do Wait(0) end
         SetEntityCoords(ball, coords.x, coords.y, coords.z, false, false, false, false)
-        local rot = GetEntityBoneRotation(rouletteEntities[rouletteIndex], GetEntityBoneIndexByName(rouletteEntities[rouletteIndex], 'Roulette_Wheel'))
-        SetEntityRotation(ball, 0.0, 0.0, rot.z - 105, 2, false)
-        PlayEntityAnim(ball, string.format('exit_%s_ball', betResult), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
-        PlayEntityAnim(rouletteEntities[rouletteIndex], string.format('exit_%s_wheel', betResult), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        local rot = GetEntityBoneRotationLocal(rouletteEntities[rouletteIndex], GetEntityBoneIndexByName(rouletteEntities[rouletteIndex], 'Roulette_Wheel'))
+        SetEntityRotation(ball, 0.0, 0.0, rot.z + GetEntityHeading(rouletteEntities[rouletteIndex]), 2, false)
+        PlayEntityAnim(ball, string.format('exit_%s_ball', roulettePositions[betResult]), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
+        PlayEntityAnim(rouletteEntities[rouletteIndex], string.format('exit_%s_wheel', roulettePositions[betResult]), 'anim_casino_b@amb@casino@games@roulette@table', 1000.0, false, true, false, 0, 136704)
         Wait(12000)
         DeleteEntity(ball)
         SetModelAsNoLongerNeeded(`vw_prop_roulette_ball`)
