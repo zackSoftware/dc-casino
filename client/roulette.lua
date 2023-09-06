@@ -106,6 +106,26 @@ local function deleteHighlights()
     end
 end
 
+local function spawnHighlights()
+    lib.requestModel(`vw_prop_vw_marker_01a`)
+    lib.requestModel(`vw_prop_vw_marker_02a`)
+    for i = 1, 38 do
+        local model = i == 37 and `vw_prop_vw_marker_01a` or i == 38 and `vw_prop_vw_marker_01a` or `vw_prop_vw_marker_02a`
+        local offsetX = HighlightPositions[i].x * Cos(rouletteInfo.coords.w) - HighlightPositions[i].y * Sin(rouletteInfo.coords.w)
+        local offsetY = HighlightPositions[i].x * Sin(rouletteInfo.coords.w) + HighlightPositions[i].y * Cos(rouletteInfo.coords.w)
+        highlightEntities[i] = CreateObject(model, rouletteInfo.coords.x + offsetX, rouletteInfo.coords.y + offsetY, rouletteInfo.coords.z + HighlightPositions[i].z, false, true, false)
+        SetEntityHeading(highlightEntities[i], rouletteInfo.coords.w)
+        SetEntityDynamic(highlightEntities[i], false)
+        SetEntityHasGravity(highlightEntities[i], false)
+        SetEntityCompletelyDisableCollision(highlightEntities[i], false, false)
+        SetEntityAlpha(highlightEntities[i], 200, true)
+        SetObjectTextureVariation(highlightEntities[i], 1)
+        SetEntityVisible(highlightEntities[i], false, false)
+    end
+    SetModelAsNoLongerNeeded(`vw_prop_vw_marker_01a`)
+    SetModelAsNoLongerNeeded(`vw_prop_vw_marker_02a`)
+end
+
 local function checkCamera()
     CreateThread(function()
         local bettingCoordX, bettingCoordY = 0.4 * Cos(rouletteInfo.coords.w) - 0.0 * Sin(rouletteInfo.coords.w), 0.4 * Sin(rouletteInfo.coords.w) + 0.0 * Cos(rouletteInfo.coords.w)
@@ -126,7 +146,6 @@ local function checkCamera()
                 end
             elseif cameraMode == 2 then
                 if not IsCamActive(rouletteCam) then
-                    deleteHighlights()
                     turnOffCams()
                     SetCamActive(rouletteCam, true)
                     RenderScriptCams(true, false, 0, true, false)
@@ -155,23 +174,12 @@ end
 AddEventHandler('onResourceStop', deleteHighlights)
 
 local function showHighlights()
-    deleteHighlights()
-    lib.requestModel(`vw_prop_vw_marker_01a`)
-    lib.requestModel(`vw_prop_vw_marker_02a`)
-    for i = 1, #chosenBets do
-        local model = chosenBets[i] == 37 and `vw_prop_vw_marker_01a` or chosenBets[i] == 38 and `vw_prop_vw_marker_01a` or `vw_prop_vw_marker_02a`
-        local offsetX = HighlightPositions[chosenBets[i]].x * Cos(rouletteInfo.coords.w) - HighlightPositions[chosenBets[i]].y * Sin(rouletteInfo.coords.w)
-        local offsetY = HighlightPositions[chosenBets[i]].x * Sin(rouletteInfo.coords.w) + HighlightPositions[chosenBets[i]].y * Cos(rouletteInfo.coords.w)
-        highlightEntities[i] = CreateObject(model, rouletteInfo.coords.x + offsetX, rouletteInfo.coords.y + offsetY, rouletteInfo.coords.z + HighlightPositions[i].z, false, true, false)
-        SetEntityHeading(highlightEntities[i], rouletteInfo.coords.w)
-        SetEntityDynamic(highlightEntities[i], false)
-        SetEntityHasGravity(highlightEntities[i], false)
-        SetEntityCompletelyDisableCollision(highlightEntities[i], false, false)
-        SetEntityAlpha(highlightEntities[i], 200, true)
-        SetObjectTextureVariation(highlightEntities[i], 1)
+    for i = 1, 38 do
+        SetEntityVisible(highlightEntities[i], false, false)
     end
-    SetModelAsNoLongerNeeded(`vw_prop_vw_marker_01a`)
-    SetModelAsNoLongerNeeded(`vw_prop_vw_marker_02a`)
+    for i = 1, #chosenBets do
+        SetEntityVisible(highlightEntities[chosenBets[i]], true, false)
+    end
 end
 
 local function highlightBets()
@@ -190,7 +198,6 @@ local function highlightBets()
                 Wait(100)
             end
         end
-        deleteHighlights()
     end)
 end
 
@@ -223,6 +230,7 @@ local function checkInputs()
                 NetworkAddPedToSynchronisedScene(cache.ped, exitScene, 'anim_casino_b@amb@casino@games@shared@player@', randomExitScene[math.random(1, #randomExitScene)], 2.0, -2.0, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(exitScene)
                 leaveChair()
+                deleteHighlights()
                 lib.hideTextUI()
                 Wait(GetAnimDuration('anim_casino_b@amb@casino@games@shared@player@', 'sit_exit_left') * 600)
                 NetworkStopSynchronisedScene(exitScene)
@@ -309,6 +317,7 @@ local function enterClosestChair(rouletteIndex)
                 local enterScene = NetworkCreateSynchronisedScene(rouletteChairsOrdered[i].coords.x, rouletteChairsOrdered[i].coords.y, rouletteChairsOrdered[i].coords.z, rouletteChairsOrdered[i].rotation.x, rouletteChairsOrdered[i].rotation.y, rouletteChairsOrdered[i].rotation.z, 2, true, false, 1065353216, 13, 1.0)
                 NetworkAddPedToSynchronisedScene(cache.ped, enterScene, 'anim_casino_b@amb@casino@games@shared@player@', randomEnterScene[math.random(1, #randomEnterScene)], 2.0, -2.0, 13, 16, 2.0, 0)
                 NetworkStartSynchronisedScene(enterScene)
+                spawnHighlights()
                 TriggerServerEvent('dc-casino:roulette:server:syncChairs', 'enter', rouletteChairsOrdered[i].coords)
                 TriggerServerEvent('dc-casino:roulette:server:enterTable', rouletteIndex)
                 startRouletteHandler()
