@@ -1,5 +1,5 @@
 ---@diagnostic disable: param-type-mismatch
-QBCore = exports['qb-core']:GetCoreObject()
+ESX = exports['es_extended']:getSharedObject()
 local UsedSlots = {}
 local Slots = {}
 
@@ -31,7 +31,7 @@ end
 
 RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, ReelLocation2, ReelLocation3, SlotModel)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = ESX.GetPlayerFromId(src)
     local PlayerCoords = GetEntityCoords(GetPlayerPed(src))
     local SlotEntity = NetworkGetEntityFromNetworkId(netID)
     local SlotCoords = GetEntityCoords(SlotEntity)
@@ -69,7 +69,7 @@ RegisterNetEvent('dc-casino:slots:server:enter', function(netID, ReelLocation1, 
         SetEntityRotation(Slots[src].Reel1, 0.0, 0.0, SlotHeading, 2, 1)
         SetEntityRotation(Slots[src].Reel2, 0.0, 0.0, SlotHeading, 2, 1)
         SetEntityRotation(Slots[src].Reel3, 0.0, 0.0, SlotHeading, 2, 1)
-        TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Entered a slot | Slot NetID %s | Slot Locations %s | Reel Locations %s %s %s | Player Location %s | Slot Model %s",
+       -- TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Entered a slot | Slot NetID %s | Slot Locations %s | Reel Locations %s %s %s | Player Location %s | Slot Model %s",
         GetPlayerName(src), Player.PlayerData.citizenid, src, netID, SlotCoords, ReelLocation1, ReelLocation2, ReelLocation3, PlayerCoords, SlotModel))
     end)
 end)
@@ -80,13 +80,13 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     local ReelRewards = {math.random(0, 15), math.random(0, 15), math.random(0, 15)}
     local SlotHeading = GetEntityHeading(Slots[src].Slot)
     local SlotModel = Slots[src].Model
-    local Player = QBCore.Functions.GetPlayer(src)
+    local Player = ESX.GetPlayerFromId(src)
 
     if not Slots[src] then return end
     if not SlotReferences[SlotModel].betamounts[ChosenBetAmount] then return end
-    if UseCash and Player.Functions.RemoveMoney('cash', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
-    or UseBank and Player.Functions.RemoveMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount], 'Casino Slot Spin')
-    or UseItem and Player.Functions.RemoveItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then else TriggerClientEvent('QBCore:Notify', src, 'Nothing left to bet with', 'error') return end
+    if UseCash and Player.removeAccountMoney('money', SlotReferences[SlotModel].betamounts[ChosenBetAmount])
+    or UseBank and Player.removeAccountMoney('bank', SlotReferences[SlotModel].betamounts[ChosenBetAmount])
+    or UseItem and Player.removeInventoryItem(ItemName, SlotReferences[SlotModel].betamounts[ChosenBetAmount]) then else Player.showNotification('Nothing left to bet with') return end
 
     for i = 1, #ReelRewards do
         if SlotReferences[SlotModel].misschance > math.random(1, 100) then ReelRewards[i] = ReelRewards[i] + math.random(4, 6) / 10 end
@@ -121,7 +121,7 @@ RegisterNetEvent('dc-casino:slots:server:spin', function(ChosenBetAmount)
     TriggerClientEvent('dc-casino:slots:client:spinreels', src, SpinTime, ReelRewards, NetworkGetNetworkIdFromEntity(BlurryReel1), NetworkGetNetworkIdFromEntity(BlurryReel2), NetworkGetNetworkIdFromEntity(BlurryReel3), NetworkGetNetworkIdFromEntity(Slots[src].Reel1), NetworkGetNetworkIdFromEntity(Slots[src].Reel2), NetworkGetNetworkIdFromEntity(Slots[src].Reel3), RewardMultiplier)
     SetTimeout(SpinTime, function()
         local RewardAmount = SlotReferences[SlotModel].betamounts[ChosenBetAmount] * RewardMultiplier
-        TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Spinned a casino slot for %s and won %s",
+       -- TriggerEvent('qb-log:server:CreateLog', 'casino', 'Casino Slots', 'green', string.format("**%s** (CitizenID: %s | ID: %s) - Spinned a casino slot for %s and won %s",
         GetPlayerName(src), Player.PlayerData.citizenid, src, SlotReferences[SlotModel].betamounts[ChosenBetAmount], RewardAmount))
         if RewardMultiplier == 0 then return end
         ---@diagnostic disable-next-line: empty-block

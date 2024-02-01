@@ -55,7 +55,7 @@ local function startTableHandler(tableIndex)
             end
 
             for i = 1, #playerBets do
-                local player = QBCore.Functions.GetPlayer(playerBets[i].source)
+                local player = ESX.GetPlayerFromId(playerBets[i].source)
                 local bettingAmount, potentialReward = 0, 0
                 for j = 1, #playerBets[i].chosen do
                     bettingAmount = bettingAmount + playerBets[i].chosen[j].amount
@@ -66,14 +66,14 @@ local function startTableHandler(tableIndex)
                     end
                 end
                 if bettingAmount > 0 then
-                    if UseCash and player.Functions.RemoveMoney('cash', bettingAmount, 'Casino Roulette')
-                    or UseBank and player.Functions.RemoveMoney('bank', bettingAmount, 'Casino Roulette')
-                    or UseItem and player.Functions.RemoveItem(ItemName, bettingAmount) then
-                        if UseCash and player.Functions.AddMoney('cash', potentialReward, 'Casino Slot Spin')
-                        or UseBank and player.Functions.AddMoney('bank', potentialReward, 'Casino Slot Spin')
-                        or UseItem and player.Functions.AddItem(ItemName, potentialReward) then TriggerClientEvent('QBCore:Notify', playerBets[i].source, 'You won back €'..potentialReward, 'success') end
+                    if UseCash and player.removeAccountMoney('cash', bettingAmount)
+                    or UseBank and player.removeAccountMoney('bank', bettingAmount)
+                    or UseItem and player.removeInventoryItem(ItemName, bettingAmount) then
+                        if UseCash and player.addAccountMoney('cash', potentialReward, 'Casino Slot Spin')
+                        or UseBank and player.addAccountMoney('bank', potentialReward, 'Casino Slot Spin')
+                        or UseItem and player.addAccountMoney(ItemName, potentialReward) then  player.showNotification('You won back €'..potentialReward) end
                     else
-                        TriggerClientEvent('QBCore:Notify', playerBets[i].source, 'Nothing left to bet with', 'error')
+                        player.showNotification('Nothing left to bet with')
                     end
                 end
             end
